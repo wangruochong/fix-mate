@@ -1,0 +1,1126 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FixMate · 界面原型 v4</title>
+<style>
+:root{
+  --bg:#F5F6F8;--panel:#fff;--panel2:#FAFAFC;--line:#E6E8EC;--text:#171A21;--mut:#667085;--faint:#98A2B3;
+  --acc:#5B5BD6;--acc-s:#EEEEFC;--acc-t:#4646C0;--on:#fff;
+  --g:#18946A;--g-s:#E5F5EE;--r:#D4443C;--r-s:#FCEBE9;--a:#A86F00;--a-s:#FFF3D6;--gr-s:#EEF0F3;
+  --sh:0 1px 2px rgba(16,24,40,.05),0 10px 30px rgba(16,24,40,.08);
+  --dw:max(50vw,560px);--rw:76px;--o:#D9631A;--o-s:#FDEEE2;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0F1115;--panel:#171A21;--panel2:#1B1F27;--line:#272C36;--text:#ECEEF2;--mut:#9AA3B2;--faint:#6B7383;
+  --acc:#8B8BF0;--acc-s:#23244A;--acc-t:#B1B1FF;--on:#101223;
+  --g:#3CC795;--g-s:#12302A;--r:#F07A72;--r-s:#3A1C1B;--a:#E7B04A;--a-s:#3A2E12;--gr-s:#22262F;
+  --sh:0 10px 30px rgba(0,0,0,.45);--o:#F59A5B;--o-s:#3A2414;
+}}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{font:14px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+a{color:inherit;text-decoration:none}
+svg{flex:none}
+.mut{color:var(--mut)} .faint{color:var(--faint)} .grow{flex:1}
+.row{display:flex;align-items:center;gap:8px}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+#app{height:100vh;display:flex}
+
+/* ---------- 左侧竖栏 ---------- */
+.rail{width:var(--rw);flex:none;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;padding:16px 0 18px;gap:6px;z-index:2}
+.logo{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#7A7AF0,#4B4BC8);color:#fff;display:grid;place-items:center;font-size:14px;font-weight:800}
+.rail .logo{width:38px;height:38px;border-radius:12px;font-size:19px;margin-bottom:18px;box-shadow:0 6px 16px rgba(91,91,214,.35)}
+.tab{position:relative;width:58px;height:58px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--mut);font-size:12px;font-weight:500;transition:.15s}
+.tab:hover{background:var(--gr-s);color:var(--text)}
+.tab.on{background:var(--acc-s);color:var(--acc-t)}
+.tab.on::before{content:"";position:absolute;left:-9px;top:17px;bottom:17px;width:3px;border-radius:0 3px 3px 0;background:var(--acc)}
+.tab .dot{position:absolute;top:9px;right:12px;width:9px;height:9px;border-radius:50%;background:var(--r);border:2px solid var(--panel)}
+.rsep{width:34px;height:1px;background:var(--line);margin:8px 0}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--acc-s);color:var(--acc-t);display:grid;place-items:center;font-weight:600;font-size:13px}
+.icon{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;color:var(--mut);flex:none}
+.icon:hover{background:var(--gr-s);color:var(--text)}
+
+/* ---------- 页面 ---------- */
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.page{flex:1;overflow:auto}
+.pc{max-width:980px;margin:0 auto;padding:0 32px 110px}
+#app.dopen .swr .chip{display:none}
+#app.dopen .pc{max-width:none;margin:0;width:calc(100vw - var(--rw) - var(--dw));padding:0 24px 110px}
+.ph{padding:30px 0 18px}
+.ph h1{font-size:24px;letter-spacing:.2px;margin-bottom:2px}
+.pt{display:flex;align-items:flex-start;gap:16px}
+.swr{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.lsw{display:inline-flex;align-items:center;gap:10px;height:40px;padding:0 12px 0 14px;border-radius:11px;border:1px solid var(--line);background:var(--panel);font-weight:600}
+.lsw:hover{border-color:var(--faint)}
+.pm{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--mut)}
+.pm .bar{width:120px}
+.chip{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:8px;background:var(--gr-s);font-size:12.5px;color:var(--mut)}
+.seg{display:inline-flex;padding:3px;border-radius:10px;background:var(--gr-s)}
+.seg button{height:28px;padding:0 14px;border-radius:7px;font-size:13px;color:var(--mut);font-weight:500}
+.seg button.on{background:var(--panel);color:var(--text);box-shadow:0 1px 3px rgba(16,24,40,.12)}
+.hint{font-size:12px;color:var(--mut);display:flex;gap:6px;align-items:flex-start;line-height:1.45}
+.bar{height:6px;border-radius:3px;background:var(--gr-s);overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#7A7AF0,var(--acc));border-radius:3px;transition:width .4s}
+.gh{padding:16px 4px 8px;font-size:12px;color:var(--faint);font-weight:600;display:flex;gap:6px;align-items:center}
+.gh span{background:var(--gr-s);border-radius:9px;padding:0 7px;font-weight:500;color:var(--mut)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 14px;border-radius:9px;border:1px solid var(--line);background:var(--panel);font-size:13.5px;font-weight:500;transition:.12s;white-space:nowrap}
+.btn:hover{background:var(--panel2);border-color:var(--faint)}
+.btn.sm{height:28px;padding:0 10px;font-size:12.5px;border-radius:8px}
+.btn.lg{height:38px;padding:0 18px}
+.btn.primary{background:var(--acc);border-color:var(--acc);color:var(--on)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.good{background:var(--g);border-color:var(--g);color:#fff}
+.btn.good:hover{filter:brightness(1.06)}
+.btn.danger{color:var(--r);border-color:color-mix(in srgb,var(--r) 35%,var(--line))}
+.btn.danger:hover{background:var(--r-s)}
+.btn.ghost{border-color:transparent;background:none;color:var(--mut)}
+.btn.ghost:hover{background:var(--gr-s);color:var(--text)}
+.btn[disabled]{opacity:.45;pointer-events:none}
+
+/* ---------- 缺陷行 ---------- */
+.dr{display:flex;align-items:center;gap:14px;padding:13px 16px;border-radius:12px;border:1px solid var(--line);background:var(--panel);margin-bottom:8px;cursor:pointer;transition:background .15s,border-color .15s;max-height:96px;overflow:hidden}
+.dr:hover{border-color:var(--faint)}
+.dr.sel{background:var(--acc-s);border-color:color-mix(in srgb,var(--acc) 40%,transparent)}
+.dr.leaving{animation:leave .45s ease forwards;pointer-events:none}
+@keyframes leave{
+  0%{opacity:1;max-height:96px;margin-bottom:8px}
+  50%{opacity:0;transform:translateX(-28px);max-height:96px;margin-bottom:8px}
+  100%{opacity:0;transform:translateX(-28px);max-height:0;margin-bottom:0;padding-top:0;padding-bottom:0;border-width:0}}
+.ib{min-width:0;flex:1}
+.rt{display:flex;align-items:center;gap:8px;flex:none}
+.r1{display:flex;align-items:center;gap:8px;font-size:12px}
+.id{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--mut)}
+.tt{font-weight:600;margin:2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14.5px}
+.mt{font-size:12px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sti{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;flex:none}
+.sti.review{border:2px solid var(--acc);background:var(--acc-s)}
+.sti.review::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--acc)}
+.sti.queued,.sti.passed{color:var(--faint)}
+.sti.accepted{background:var(--g-s);color:var(--g)}
+.sti.rejected{background:var(--r-s);color:var(--r)}
+.spin{width:16px;height:16px;border-radius:50%;border:2px solid var(--acc-s);border-top-color:var(--acc);animation:sp .8s linear infinite;display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+.pri{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--mut)}
+.pri i{width:7px;height:7px;border-radius:50%}
+.tag{display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 8px;border-radius:6px;font-size:11.5px;font-weight:600;white-space:nowrap}
+.tag.acc{background:var(--acc);color:var(--on)}
+.tag.amb{background:var(--a-s);color:var(--a)}
+.tag.g{background:var(--g-s);color:var(--g)}
+.tag.r{background:var(--r-s);color:var(--r)}
+.tag.gr{background:var(--gr-s);color:var(--mut)}
+.tag.sa{background:var(--acc-s);color:var(--acc-t)}
+.tag.ln{background:var(--panel);border:1px solid var(--line);color:var(--mut);font-weight:500;max-width:120px;overflow:hidden;text-overflow:ellipsis;display:inline-block;line-height:18px}
+
+/* banner / empty */
+.bn{display:flex;gap:12px;align-items:center;padding:12px 16px;border-radius:12px;background:var(--a-s);margin-bottom:18px;border:1px solid color-mix(in srgb,var(--a) 25%,transparent)}
+ .bn b{display:block} .bn span{font-size:12.5px;color:var(--mut)}
+.empty{margin:auto;text-align:center;color:var(--mut);max-width:380px}
+.empty .big{width:64px;height:64px;border-radius:20px;background:var(--acc-s);color:var(--acc);display:grid;place-items:center;margin:0 auto 16px}
+.empty h2{color:var(--text);margin-bottom:6px;font-size:17px}
+
+/* ---------- 清单卡片 ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.lc{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px;transition:.15s}
+.lc:hover{box-shadow:var(--sh)}
+.lc.cur{border-color:color-mix(in srgb,var(--acc) 50%,transparent);box-shadow:0 0 0 3px var(--acc-s)}
+.lct{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:650;min-width:0}
+.lct b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:650}
+.dist{display:flex;height:6px;border-radius:3px;overflow:hidden;background:var(--gr-s);gap:2px}
+.dist i{display:block;height:100%}
+.leg{display:flex;gap:12px;font-size:12px;color:var(--mut);flex-wrap:wrap}
+.leg i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px}
+.lcf{display:flex;align-items:center;gap:6px;margin-top:4px;padding-top:12px;border-top:1px solid var(--line)}
+.lcnew{border:1.5px dashed var(--line);background:none;align-items:center;justify-content:center;color:var(--mut);cursor:pointer;min-height:176px;font-weight:500}
+.lcnew:hover{border-color:var(--acc);color:var(--acc);background:var(--acc-s);box-shadow:none}
+
+/* ---------- 搜索 ---------- */
+.sbar{display:flex;gap:10px;margin-bottom:10px}
+.sin{flex:1;display:flex;align-items:center;gap:10px;height:44px;padding:0 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--faint)}
+.sin:focus-within{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-s)}
+.sin input{flex:1;border:0;outline:0;background:none;font:inherit;color:var(--text)}
+.cnt{font-size:12.5px;color:var(--mut);margin:14px 4px 10px}
+
+/* ---------- 侧栏(详情 / 编辑清单) ---------- */
+.scrim{position:fixed;inset:0;z-index:20;background:rgba(15,17,24,.16);animation:fi .2s;transition:opacity .2s}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:var(--dw);background:var(--panel);box-shadow:-14px 0 44px rgba(16,24,40,.16);z-index:21;display:flex;flex-direction:column;animation:slide .26s cubic-bezier(.2,.8,.2,1);border-left:1px solid var(--line)}
+.drawer.out{animation:slideout .2s ease forwards}
+@keyframes slide{from{transform:translateX(48px);opacity:0}}
+@keyframes slideout{to{transform:translateX(48px);opacity:0}}
+@keyframes fi{from{opacity:0}}
+.dtop{display:flex;align-items:center;gap:10px;padding:13px 20px;border-bottom:1px solid var(--line);flex:none}
+.dscroll{flex:1;overflow:auto;padding:22px 24px 30px}
+.dwrap{display:flex;flex-direction:column;gap:14px}
+.dtitle{font-size:21px;line-height:1.4;font-weight:650;letter-spacing:.2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tags2{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.mrs{display:flex;flex-direction:column;gap:9px;padding:13px 15px;border-radius:12px;background:var(--panel2);border:1px solid var(--line)}
+.mr{display:flex;gap:14px;font-size:13px;align-items:flex-start}
+.mr label{width:58px;flex:none;color:var(--faint);font-size:12px;padding-top:1px}
+.mr span{flex:1;min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5}
+.lbox{display:flex;align-items:center;gap:12px;padding:12px 15px;border-radius:12px;border:1px solid var(--line);background:var(--panel)}
+.lbox.none{background:var(--a-s);border-color:color-mix(in srgb,var(--a) 28%,transparent)}
+.lbox .lt{flex:1;min-width:0}
+.lbox .lt b{display:block;font-size:13px}
+.lbox .lt span{font-size:12px;color:var(--mut)}
+.lbox.none>svg{color:var(--a)}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.act{flex:none;border-top:1px solid var(--line);background:var(--panel);padding:14px 24px}
+.actin{display:flex;align-items:center;gap:10px}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.card.warn{background:var(--a-s);border-color:color-mix(in srgb,var(--a) 30%,transparent)}
+.card.info{background:var(--acc-s);border-color:color-mix(in srgb,var(--acc) 25%,transparent)}
+.ct{display:flex;align-items:center;gap:8px;font-weight:600;margin-bottom:8px}
+.ct .sub{margin-left:auto;font-weight:400;font-size:12px;color:var(--faint)}
+.card p{opacity:.9}
+.card ul{padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.concl{margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--panel2);border:1px dashed var(--line);font-size:13px;color:var(--mut)}
+.concl b{color:var(--text)}
+.steps{display:flex}
+.stp{flex:1;display:flex;flex-direction:column;gap:6px;position:relative;font-size:12.5px;color:var(--faint)}
+.stp .n{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--gr-s);color:var(--faint);font-size:11px;font-weight:700;position:relative;z-index:1}
+.stp::before{content:"";position:absolute;top:10px;left:22px;right:0;height:2px;background:var(--gr-s)}
+.stp:last-child::before{display:none}
+.stp.done{color:var(--mut)} .stp.done .n{background:var(--g);color:#fff} .stp.done::before{background:var(--g)}
+.stp.cur{color:var(--text);font-weight:600} .stp.cur .n{background:var(--acc);color:var(--on)}
+.gitline{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.file{border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:10px}
+.fh{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--panel2);cursor:pointer;font-size:12.5px}
+.fh .chev{transition:.15s;color:var(--faint)} .file.open .chev{transform:rotate(90deg)}
+.fh .add{color:var(--g)} .fh .del{color:var(--r)}
+.diff{display:none;font:12px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace;overflow:auto}
+.file.open .diff{display:block}
+.diff div{padding:0 12px;white-space:pre}
+.diff .p{background:var(--g-s);color:var(--g)} .diff .m{background:var(--r-s);color:var(--r)} .diff .c{color:var(--faint)}
+.sk{height:12px;border-radius:6px;background:linear-gradient(90deg,var(--gr-s),var(--panel2),var(--gr-s));background-size:200% 100%;animation:sh 1.4s infinite;margin:8px 0}
+@keyframes sh{to{background-position:-200% 0}}
+.res{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.cmt{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);font-size:13px}
+.tl{list-style:none;padding:0!important;gap:8px!important}
+.tl li{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--mut)}
+.tl li svg{color:var(--g)}
+.note{margin-top:14px;padding:10px 12px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);font-size:12.5px;color:var(--mut)}
+
+/* 编辑清单 */
+.dhd{display:flex;align-items:center;gap:10px;padding:15px 22px;border-bottom:1px solid var(--line);flex:none}
+.dhd h2{font-size:17px}
+.en{padding:18px 22px 14px;flex:none}
+.en label{display:block;font-size:12px;font-weight:600;color:var(--mut);margin-bottom:7px}
+.ef{padding:12px 22px 14px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);flex:none;display:flex;flex-direction:column;gap:11px;background:var(--panel2)}
+.fr{display:flex;align-items:center;gap:10px}
+.fl{width:48px;font-size:12px;color:var(--mut);font-weight:600;flex:none}
+.acw{position:relative;flex:1;min-width:0}
+.acw .acl{position:absolute;left:0;right:0;top:100%;z-index:6;box-shadow:var(--sh)}
+.etool{display:flex;align-items:center;gap:8px;padding:11px 22px;flex:none;border-bottom:1px solid var(--line);font-size:13px}
+.escroll{flex:1;overflow:auto;padding:8px 14px}
+.er{display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;cursor:pointer}
+.er:hover{background:var(--panel2)} .er.on{background:var(--acc-s)}
+.cb{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--faint);display:grid;place-items:center;color:transparent;flex:none;transition:.12s}
+.cb.on{background:var(--acc);border-color:var(--acc);color:var(--on)}
+.foot{flex:none;padding:14px 22px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:center;background:var(--panel)}
+.inp,.ta{width:100%;border:1px solid var(--line);border-radius:9px;background:var(--panel);padding:0 11px;height:36px;font:inherit;color:var(--text);outline:none}
+.ta{height:84px;padding:9px 11px;resize:none}
+.inp:focus,.ta:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-s)}
+.inp.err{border-color:var(--r);box-shadow:0 0 0 3px var(--r-s);animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.ferr{color:var(--r);font-size:12px;margin-top:6px;min-height:0}
+.cp{height:28px;padding:0 11px;border-radius:14px;border:1px solid var(--line);background:var(--panel);font-size:12.5px;color:var(--mut);display:inline-flex;align-items:center;gap:6px}
+.cp:hover{border-color:var(--faint)}
+.cp.on{background:var(--acc-s);border-color:var(--acc);color:var(--acc-t);font-weight:500}
+.acl{margin-top:4px;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--panel)}
+.acl button{display:block;width:100%;text-align:left;padding:7px 11px;font-size:13px}
+.acl button:hover{background:var(--acc-s)}
+.tok{display:inline-flex;align-items:center;gap:4px;height:28px;padding:0 6px 0 10px;border-radius:14px;background:var(--acc-s);color:var(--acc-t);font-size:12.5px;max-width:100%}
+.tok span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tok button{width:18px;height:18px;border-radius:9px;display:grid;place-items:center;opacity:.7;flex:none}
+.tok button:hover{opacity:1;background:rgba(91,91,214,.18)}
+.sw{width:38px;height:22px;border-radius:11px;background:var(--line);position:relative;transition:.15s;flex:none;cursor:pointer}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.15s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.sw.on{background:var(--acc)} .sw.on::after{left:18px}
+
+/* ---------- 浮层 ---------- */
+#pop{position:fixed;z-index:30}
+.pop{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh);overflow:hidden}
+.pop h5{padding:11px 14px 8px;font-size:12px;color:var(--faint);font-weight:600}
+.lpi{display:flex;align-items:center;gap:10px;width:calc(100% - 12px);margin:0 6px 4px;padding:9px 10px;border-radius:9px;text-align:left}
+.lpi:hover{background:var(--acc-s)}
+.lpi div{flex:1;min-width:0} .lpi b{display:block;font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lpi span{font-size:12px;color:var(--mut)}
+.lpi svg{color:var(--faint)} .lpi.on svg{color:var(--acc)}
+.mask{position:fixed;inset:0;background:rgba(10,12,18,.45);backdrop-filter:blur(3px);z-index:40;display:grid;place-items:center;animation:fi .15s}
+.modal{width:520px;max-width:92vw;background:var(--panel);border-radius:18px;box-shadow:var(--sh);padding:24px;animation:up .18s}
+@keyframes up{from{transform:translateY(10px);opacity:0}}
+.modal h3{font-size:17px;margin-bottom:4px}
+.modal .sub{color:var(--mut);margin-bottom:16px;font-size:13px}
+.modal footer{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.ostep{list-style:none;padding:0;display:flex;flex-direction:column;gap:2px}
+.ostep li{display:flex;align-items:center;gap:10px;padding:7px 4px;font-size:13.5px;color:var(--mut)}
+.ostep li .b{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:var(--gr-s);font-size:11px;font-weight:700;color:var(--faint)}
+.ostep li.run{color:var(--text)} .ostep li.run .b{background:none}
+.ostep li.ok{color:var(--text)} .ostep li.ok .b{background:var(--g);color:#fff}
+.ostep code{background:var(--gr-s);padding:1px 6px;border-radius:5px;font-size:12px}
+.rc{display:flex;gap:12px;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;cursor:pointer;margin-bottom:10px;width:100%;text-align:left}
+.rc.on{border-color:var(--acc);background:var(--acc-s)}
+.rc .rd{width:18px;height:18px;border-radius:50%;border:2px solid var(--faint);margin-top:2px;flex:none;display:grid;place-items:center}
+.rc.on .rd{border-color:var(--acc)} .rc.on .rd::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--acc)}
+.rc b{display:block;font-weight:600} .rc span{font-size:12.5px;color:var(--mut)}
+#toasts{position:fixed;top:16px;right:16px;z-index:50;display:flex;flex-direction:column;gap:10px;width:340px}
+.toast{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh);padding:12px 14px;display:flex;gap:11px;animation:in .25s;cursor:pointer}
+@keyframes in{from{transform:translateX(30px);opacity:0}}
+.toast .ti{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;flex:none}
+.toast b{display:block;font-size:13.5px} .toast span{font-size:12.5px;color:var(--mut);display:block}
+.bell{width:360px}
+.bell h4{padding:12px 16px;border-bottom:1px solid var(--line);font-size:13.5px;display:flex;justify-content:space-between}
+.bi{display:flex;gap:10px;padding:11px 16px;border-bottom:1px solid var(--line);cursor:pointer;font-size:13px}
+.bi:hover{background:var(--panel2)} .bi:last-child{border:0}
+.bi small{color:var(--faint);display:block}
+.bi .u{width:7px;height:7px;border-radius:50%;background:var(--acc);margin-top:7px;flex:none}
+
+/* 设置 / 首次启动 */
+.sec{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:6px 20px;margin-bottom:16px}
+.sr{display:flex;align-items:center;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}
+.sr:last-child{border:0}
+.si{width:38px;height:38px;border-radius:11px;background:var(--acc-s);color:var(--acc);display:grid;place-items:center;flex:none}
+.sr .tx{flex:1;min-width:0} .sr .tx b{display:block;font-weight:600} .sr .tx span{font-size:12.5px;color:var(--mut)}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;width:100%}
+.hero{text-align:center;margin:30px 0 20px}
+.hero .logo{width:56px;height:56px;border-radius:17px;font-size:28px;margin:0 auto 16px}
+.hero h1{font-size:28px} .hero p{color:var(--mut);margin-top:6px}
+.demo{position:fixed;bottom:12px;left:calc(var(--rw) + 14px);z-index:60;display:flex;gap:2px;padding:4px;border-radius:12px;background:rgba(23,26,33,.88);backdrop-filter:blur(10px);box-shadow:0 6px 24px rgba(0,0,0,.25);opacity:.6;transition:.15s}
+.demo:hover{opacity:1}
+.demo button{height:28px;padding:0 12px;border-radius:8px;color:#C9CED8;font-size:12.5px}
+.demo button:hover{background:rgba(255,255,255,.1);color:#fff}
+
+/* v3 */
+.bn>svg{color:var(--a)}
+.bn.info{background:var(--acc-s);border-color:color-mix(in srgb,var(--acc) 25%,transparent)} .bn.info>svg{color:var(--acc)}
+.bn.ok{background:var(--g-s);border-color:color-mix(in srgb,var(--g) 25%,transparent)} .bn.ok>svg{color:var(--g)}
+.swr+.bn{margin-top:4px}
+.rows{margin-top:6px}
+.sti.paused{background:var(--a-s);color:var(--a)}
+.stp.pause{color:var(--a);font-weight:600} .stp.pause .n{background:var(--a);color:#fff}
+.idx{width:18px;flex:none;text-align:right;font:12px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--faint)}
+.icon.sm{width:28px;height:28px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--mut)}
+.icon.sm:hover{border-color:var(--acc);color:var(--acc);background:var(--acc-s)}
+.pulse{width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;animation:pl 1.2s ease-in-out infinite}
+@keyframes pl{50%{opacity:.25}}
+.lc{cursor:pointer;position:relative}
+.lc:hover{transform:translateY(-2px);box-shadow:var(--sh);border-color:color-mix(in srgb,var(--acc) 45%,transparent)}
+.lc .go{position:absolute;top:19px;right:18px;color:var(--faint);transition:.18s}
+.lc:hover .go{color:var(--acc);transform:translateX(4px)}
+.lct{padding-right:30px}
+.lcnew:hover{transform:none}
+.lprog{font-size:12.5px;color:var(--mut)} .lprog b{color:var(--acc-t);font-weight:600}
+.lpi .tag{flex:none}
+#app.dopen .swr .chip,#app.dopen .swr .pm{display:none}
+#app.dopen .ph .chip{display:none}
+/* v4 */
+.ttlrow{display:flex;align-items:center;gap:12px;margin-bottom:2px}
+.ttl{display:inline-flex;align-items:center;gap:8px;padding:2px 6px 2px 0;border-radius:10px;color:var(--text)}
+.ttl .t{font-size:24px;font-weight:700;letter-spacing:.2px}
+.ttl:hover{color:var(--acc)}
+.ttl svg:first-child{color:var(--o)}
+.tag.ur{background:var(--o-s);color:var(--o)}
+.btn.urgent{color:var(--o);border-color:color-mix(in srgb,var(--o) 40%,var(--line))}
+.btn.urgent:hover{background:var(--o-s)}
+.ubar{flex:none;display:flex;align-items:center;gap:10px;padding:9px 22px;background:var(--o-s);border-bottom:1px solid color-mix(in srgb,var(--o) 28%,transparent);cursor:pointer;font-size:13px}
+.ubar svg{color:var(--o)} .ubar b{color:var(--o)}
+.ubar .gt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ubar .uh{color:var(--mut);font-size:12px;white-space:nowrap}
+.ubar .uo{display:inline-flex;align-items:center;gap:2px;color:var(--mut);font-size:12.5px;white-space:nowrap}
+.ubar.ok{background:var(--g-s);border-color:color-mix(in srgb,var(--g) 28%,transparent)} .ubar.ok svg,.ubar.ok b{color:var(--g)}
+.lc.urg{border-color:color-mix(in srgb,var(--o) 45%,transparent);background:linear-gradient(180deg,var(--o-s),var(--panel) 75%)}
+.lc.urg .lct svg{color:var(--o)}
+.lc.urg:hover{border-color:var(--o)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="drawer"></div>
+<div id="pop"></div>
+<div id="toasts"></div>
+<div id="modal"></div>
+<div class="demo"><button onclick="go('onboard')">首次启动</button><button onclick="simNew()">＋ 模拟新缺陷</button></div>
+<script>
+const $=s=>document.querySelector(s);
+const IC={
+ bell:'<path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 003.4 0"/>',
+ branch:'<circle cx="6" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="9" r="2"/><path d="M6 7v10M18 11c0 4-6 3-12 6"/>',
+ check:'<path d="M20 6L9 17l-5-5"/>',
+ x:'<path d="M18 6L6 18M6 6l12 12"/>',
+ skip:'<path d="M5 4l10 8-10 8zM19 5v14"/>',
+ gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',
+ search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
+ spark:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/>',
+ alert:'<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/>',
+ rocket:'<path d="M12 15l-3-3a22 22 0 012-4 12 12 0 019-5c0 3-1 7-5 11a22 22 0 01-3 1z"/><path d="M9 12H4s.5-3 2-4c1.6-.8 5 0 5 0M12 15v5s3-.5 4-2c.8-1.6 0-5 0-5"/>',
+ folder:'<path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>',
+ clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+ file:'<path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5"/>',
+ chev:'<path d="M9 6l6 6-6 6"/>',
+ chevd:'<path d="M6 9l6 6 6-6"/>',
+ zap:'<path d="M13 2L3 14h8l-1 8 10-12h-8z"/>',
+ layers:'<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ chat:'<path d="M21 12a8 8 0 01-11.5 7.2L4 20l1-4.5A8 8 0 1121 12z"/>',
+ party:'<path d="M4 20l4-12 8 8z"/><path d="M14 4v2M19 9h2M17 5l1-1M10 3h.01"/>',
+ info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+ user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/>',
+ refresh:'<path d="M20 11a8 8 0 00-14-4L4 9M4 4v5h5M4 13a8 8 0 0014 4l2-2M20 20v-5h-5"/>',
+ filter:'<path d="M3 5h18l-7 8v6l-4 2v-8z"/>',
+ external:'<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/>',
+ trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+ edit:'<path d="M4 20h4L19 9a2.8 2.8 0 00-4-4L4 16z"/>',
+ list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+ minus:'<path d="M5 12h14"/>',
+ pause:'<path d="M8 5v14M16 5v14"/>',
+ play:'<path d="M7 4l13 8-13 8z"/>',
+ arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+ bug:'<path d="M9 9a3 3 0 016 0v6a3 3 0 01-6 0zM12 12v7M6 13H3M21 13h-3M6 8L4 6M18 8l2-2M6 18l-2 2M18 18l2 2"/>',
+ flame:'<path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 01-10 0c0-2 1-3.200 2-4.200 0 2 1 3 2 3 0-3-1-5 1-8.800z"/>'
+};
+const ic=(n,s=16)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${IC[n]}</svg>`;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ========== 数据 ========== */
+const PRI={Blocker:'#D4443C',Critical:'#E0701F',Major:'#C99A0B',Minor:'#7B879C'};
+const TYPES=['Bug','建议','测试需求','历史遗留问题'];
+const VERS=['v3.8.0','v3.7.2','v3.7.1','v3.6.5'];
+const LONGREQ='支付链路优化 · 海外多币种结算与风控联动改造(二期)';
+const LONGVER='v3.8.0 · 2026Q4 国际版灰度发布(含 Android / iOS 双端同步上线)';
+const REQS=['账号体系改版',LONGREQ,'个人中心 2.0','报表中心','消息中心重构','设置页重构'];
+const STATUS={review:'待审核',paused:'已暂停',analyzing:'AI 处理中',queued:'排队中',passed:'已跳过',accepted:'已接受',rejected:'已拒绝'};
+const STEPS=['判断是否可修复','基于 main 建临时分支','修改代码并提交','等待你审核'];
+const FINAL=['accepted','rejected','passed'];
+
+const D=[
+{id:'BUG-2481',title:'登录页点击「忘记密码」无响应',type:'Bug',pri:'Critical',req:'账号体系改版',ver:'v3.8.0',who:'李晓雯',time:'10 分钟前',state:'review',fixable:true,
+ desc:'在登录页点击「忘记密码」链接,没有任何反应,也无报错。复现:冷启动 App → 登录页 → 点击链接。Android / iOS 均可复现。',
+ fix:{conf:92,branch:'fixmate/BUG-2481',commit:'e4b7a90',
+  judge:'问题定位明确:链接的点击回调只更新了本地状态,没有触发路由跳转,属于可通过修改代码解决的确定性问题。',
+  summary:['为「忘记密码」补上路由跳转 <span class="mono">navigate(\'/reset\')</span>','在 AuthService 新增 <span class="mono">validateCredential()</span>,统一校验账号格式','补充 2 个单元测试'],
+  conclusion:'根因是 <b>onForgot</b> 被误写成只 setState;已在 LoginView 修复。AuthService 里新增的校验函数后续可被其它登录类缺陷复用。',
+  files:[{name:'src/pages/Login/LoginView.tsx',add:6,del:2,lines:[['c','@@ -38,8 +38,12 @@'],['c','  const onForgot = () => {'],['m','-   setShowTip(true)'],['p','+   track(\'forgot_click\')'],['p','+   navigate(\'/reset\', { from: \'login\' })'],['c','  }']]},
+         {name:'src/services/AuthService.ts',add:11,del:1,lines:[['c','@@ -40,6 +40,16 @@'],['p','+ export function validateCredential(v: string) {'],['p','+   if (!v) return { ok: false, reason: \'EMPTY\' }'],['p','+   return { ok: EMAIL.test(v) || PHONE.test(v) }'],['p','+ }'],['m','- const ok = v.length > 0'],['p','+ const ok = validateCredential(v).ok']]}],
+  conflicts:[]}},
+{id:'BUG-2462',title:'登录失败时提示信息不准确',type:'Bug',pri:'Major',req:'账号体系改版',ver:'v3.8.0',who:'陈子墨',time:'32 分钟前',state:'review',fixable:true,stale:true,
+ desc:'密码错误与账号不存在时,都提示「网络异常,请重试」,用户无法判断真实原因。',
+ cached:{time:'14:32',base:'a3f9c21',text:'错误码已在 AuthService.login() 返回,但 UI 层统一吞掉并展示通用文案。方案:按错误码映射文案。注意该函数与账号校验逻辑相邻,可能被其它缺陷改动。'},
+ fix:{conf:88,branch:'fixmate/BUG-2462',commit:'7c1d3be',
+  judge:'错误码已存在,仅需在 UI 层做映射,属于确定性问题。',
+  summary:['新增错误码到文案的映射表','登录失败时展示对应提示','补充 3 条文案用例'],
+  conclusion:'基于缓存结论:UI 层吞掉了错误码。',
+  files:[{name:'src/services/AuthService.ts',add:14,del:4,lines:[['c','@@ -42,16 +42,26 @@'],['m','-   throw new Error(\'NETWORK\')'],['p','+   throw new AuthError(code, ERR_TEXT[code])']]}],
+  conflicts:[{with:'BUG-2481',file:'src/services/AuthService.ts',range:'42–58'}]}},
+{id:'BUG-2476',title:'弱网下订单提交可能重复扣款',type:'Bug',pri:'Blocker',req:LONGREQ,ver:LONGVER,who:'赵一鸣',time:'1 小时前',state:'analyzing',step:1,fixable:true,desc:'弱网环境下连续点击提交,订单接口超时重试,偶发创建两笔订单并重复扣款。'},
+{id:'BUG-2469',title:'个人中心头像裁剪后显示被拉伸',type:'Bug',pri:'Major',req:'个人中心 2.0',ver:'v3.7.2',who:'周楠',time:'2 小时前',state:'queued',fixable:true,desc:'裁剪非正方形区域后上传,头像在个人中心被拉伸变形。'},
+{id:'SUG-1120',title:'希望设置页支持深色模式手动切换',type:'建议',pri:'Minor',req:'设置页重构',ver:'v3.8.0',who:'吴珊',time:'3 小时前',state:'queued',fixable:false,desc:'目前深色模式只能跟随系统,希望可以手动切换。'},
+{id:'TST-0933',title:'补充登录模块的单元测试',type:'测试需求',pri:'Major',req:'账号体系改版',ver:'v3.8.0',who:'孙浩',time:'昨天',state:'paused',step:2,pausedAt:'14:05',note:'已定位到登录模块的 5 个异常分支,完成了其中 3 个用例的编写',fixable:true,desc:'登录模块当前单测覆盖率偏低,需补充异常分支用例。'},
+{id:'BUG-2455',title:'旧版报表导出中文乱码',type:'历史遗留问题',pri:'Critical',req:'报表中心',ver:'v3.7.2',who:'李晓雯',time:'昨天',state:'accepted',ota:'3.7.2.2398',commit:'b82f4e1',desc:'老版本导出的 CSV 在 Excel 中打开出现中文乱码。'},
+{id:'BUG-2450',title:'消息列表快速滚动时掉帧',type:'Bug',pri:'Major',req:'消息中心重构',ver:'v3.7.1',who:'陈子墨',time:'昨天',state:'rejected',kept:true,reason:'思路对但改动范围偏大,保留代码自己再调整',desc:'消息超过 500 条后快速滚动明显掉帧。'},
+{id:'SUG-1103',title:'反馈入口文案不够明确',type:'建议',pri:'Minor',req:'设置页重构',ver:'v3.7.1',who:'吴珊',time:'2 天前',state:'passed',reason:'需求描述不明确,需先和产品确认文案。',desc:'「意见反馈」入口希望文案更明确。'},
+{id:'BUG-2431',title:'设置页开关切换动画卡顿',type:'Bug',pri:'Minor',req:'设置页重构',ver:'v3.7.2',who:'周楠',time:'3 天前',state:'queued',fixable:true,desc:'设置页的开关切换时动画掉帧,低端机尤为明显。'},
+{id:'BUG-2438',title:'夜间模式下图表坐标轴标签看不清',type:'历史遗留问题',pri:'Major',req:'报表中心',ver:'v3.7.1',who:'孙浩',time:'昨天',state:'queued',fixable:true,desc:'夜间模式下报表图表的坐标轴文字颜色与背景接近。'},
+{id:'BUG-2420',title:'支付回调偶发丢失导致订单状态不同步',type:'Bug',pri:'Blocker',req:LONGREQ,ver:'v3.7.2',who:'赵一鸣',time:'3 天前',state:'queued',fixable:true,desc:'支付渠道回调偶发丢失,订单长时间停留在「支付中」。'},
+{id:'SUG-1098',title:'希望订单页支持按时间筛选',type:'建议',pri:'Minor',req:LONGREQ,ver:'v3.8.0',who:'吴珊',time:'4 天前',state:'queued',fixable:false,desc:'订单较多时希望可以按时间范围筛选。'}
+];
+
+let LISTS=[
+ {id:'L-URGENT',name:'紧急',urgent:true,created:'',started:true,on:true,seq:0,ids:[]},
+ {id:'L-0001',name:'本周迭代',created:'11-02',started:true,on:true,seq:1,ids:['BUG-2455','BUG-2450','BUG-2481','BUG-2462','BUG-2476','BUG-2469','SUG-1120']},
+ {id:'L-0002',name:'账号体系改版',created:'11-01',started:true,on:false,seq:2,ids:['BUG-2481','BUG-2462','TST-0933']},
+ {id:'L-0003',name:'待跟进',created:'10-28',started:true,on:true,seq:3,ids:['SUG-1103','BUG-2450']},
+ {id:'L-0004',name:'待跟进',created:'10-30',started:false,on:false,seq:0,ids:['BUG-2431']}];
+let listSeq=4,seqN=3,mainRev=0,lastActive,upos='front',ucur='',viewList='L-0001',view='work',selId=null,DR=null,E=null,rechecking={},newN=0;
+const GH=new Map();            // 已从正在查看的清单中移除、但侧栏关闭前仍保留的缺陷:id -> 原位置
+const S={q:'',done:false,ids:[]};
+const notifs=[];
+const NEWPOOL=[
+ {title:'启动页偶现白屏超过 3 秒',type:'Bug',pri:'Critical',req:'账号体系改版',ver:'v3.8.0',fixable:true},
+ {title:'订单列表筛选后分页错乱',type:'Bug',pri:'Major',req:LONGREQ,ver:'v3.8.0',fixable:true},
+ {title:'希望增加更多主题配色',type:'建议',pri:'Minor',req:'设置页重构',ver:'v3.8.0',fixable:false}];
+const UNDONE=['queued','analyzing','paused'];   // AI 视角下「未处理完」
+const get=id=>D.find(d=>d.id===id);
+const LS=id=>LISTS.find(l=>l.id===id);
+const listsOf=id=>LISTS.filter(l=>l.ids.includes(id));
+const unlisted=()=>D.filter(d=>!listsOf(d.id).length);
+const nowS=()=>new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});
+const URG=()=>LISTS.find(l=>l.urgent);
+const SL=()=>[...LISTS].sort((a,b)=>(b.urgent?1:0)-(a.urgent?1:0));
+const undone=l=>l.ids.some(id=>{const d=get(id);return d&&UNDONE.includes(d.state)});
+const activeList=()=>{const c=LISTS.filter(l=>l.started&&l.on&&undone(l));return c.find(l=>l.urgent)||c.sort((a,b)=>a.seq-b.seq)[0]};
+function listState(l){
+  if(l.urgent)return !l.ids.length?'idle':!undone(l)?'done':l.on?'running':'paused';
+  if(!l.started)return 'idle';
+  if(!undone(l))return 'done';
+  if(!l.on)return 'paused';
+  return activeList()===l?'running':'waiting';
+}
+const inUrgent=d=>!!URG()?.ids.includes(d.id);
+const canUrgent=d=>['queued','paused','analyzing'].includes(d.state)&&!inUrgent(d);
+const urgTag=d=>inUrgent(d)&&UNDONE.includes(d.state)?'<span class="tag ur">紧急</span>':'';
+const urgBtn=d=>canUrgent(d)?`<button class="btn sm urgent" onclick="event.stopPropagation();urgentAsk('${d.id}')">${ic('flame',13)}立即处理</button>`:'';
+const queuedLive=d=>listsOf(d.id).some(l=>l.started&&l.on);
+const inActive=d=>!!activeList()?.ids.includes(d.id);
+const firstReview=(l,ex)=>l?l.ids.map(get).find(d=>d&&d.state==='review'&&d.id!==ex):undefined;
+const LST={idle:['未处理','gr'],running:['处理中','sa'],paused:['暂停处理','amb'],waiting:['等待中','gr'],done:['处理完成','g']};
+const lbadge=l=>{const s=listState(l);return `<span class="tag ${LST[s][1]}">${s==='running'?'<i class="pulse"></i>':''}${l.urgent&&s==='idle'?'空闲':LST[s][0]}</span>`};
+const lmeta=l=>l.urgent?`${l.ids.length} 个缺陷 · 插队处理`:`${l.ids.length} 个缺陷 · 创建于 ${l.created}`;
+
+/* ========== 通用片段 ========== */
+const priDot=p=>`<span class="pri"><i style="background:${PRI[p]}"></i>${p}</span>`;
+function stIcon(s){return s==='analyzing'?'<div class="spin"></div>':s==='queued'?ic('clock',15):s==='paused'?ic('pause',11):s==='passed'?ic('skip',12):s==='accepted'?ic('check',12):s==='rejected'?ic('x',12):''}
+function badge(d){
+  const m={review:'sa',analyzing:'sa',queued:'gr',paused:'amb',passed:'gr',accepted:'g',rejected:'r'};
+  const t=d.state==='queued'&&!queuedLive(d)?'未开始':STATUS[d.state];
+  return `<span class="tag ${m[d.state]}">${t}</span>`;
+}
+const tok=(t,fn)=>`<span class="tok"><span>${esc(t)}</span><button onclick="${fn}">${ic('x',10)}</button></span>`;
+const emptyBlock=(icn,t,s,btn='')=>`<div class="empty" style="padding:64px 0"><div class="big">${ic(icn,30)}</div><h2>${t}</h2><p>${s}</p>${btn?`<div style="margin-top:18px">${btn}</div>`:''}</div>`;
+const listChips=(id,max=2)=>{
+  const ls=listsOf(id);
+  if(!ls.length)return '<span class="tag amb">未入清单</span>';
+  return ls.slice(0,max).map(l=>`<span class="tag ln" title="${esc(l.name)}">${esc(l.name)}</span>`).join('')+(ls.length>max?`<span class="tag gr">+${ls.length-max}</span>`:'');
+};
+function actBtn(l,sm){
+  const c=sm?'btn sm':'btn',st='event.stopPropagation();',s=listState(l);
+  if(s==='idle'&&!l.urgent)return `<button class="${c} primary" onclick="${st}startList('${l.id}')">${ic('play',13)}开始处理</button>`;
+  if(s==='running'||s==='waiting')return `<button class="${c}" onclick="${st}pauseList('${l.id}')">${ic('pause',13)}暂停处理</button>`;
+  if(s==='paused')return `<button class="${c} primary" onclick="${st}startList('${l.id}')">${ic('play',13)}继续处理</button>`;
+  return '';
+}
+
+/* ========== 竖栏 ========== */
+function renderRail(){
+  let r=$('#app .rail');
+  if(view==='onboard'){r&&r.remove();return}
+  if(!r){r=document.createElement('div');r.className='rail';$('#app').prepend(r)}
+  const tb=(v,label,icon,dot)=>`<button class="tab ${view===v?'on':''}" onclick="go('${v}')">${ic(icon,22)}<span>${label}</span>${dot?'<i class="dot"></i>':''}</button>`;
+  const unread=notifs.some(n=>n.unread);
+  r.innerHTML=`<div class="logo">F</div>
+   ${tb('work','缺陷','bug')}${tb('lists','清单','layers',unlisted().length>0)}${tb('search','搜索','search')}
+   <div class="rsep"></div>
+   <button class="tab" onclick="toggleBell(event)">${ic('bell',22)}<span>通知</span>${unread?'<i class="dot"></i>':''}</button>
+   ${tb('settings','设置','gear')}
+   <div class="grow"></div><div class="avatar">我</div>`;
+}
+
+
+/* ========== 页面:处理 ========== */
+function item(d,idx,cur,l){
+  const ghost=GH.has(d.id)&&!l.ids.includes(d.id);
+  const extra=d.state==='analyzing'?` · ${STEPS[Math.min(d.step,2)]}…`:d.state==='paused'?(d.preempted?' · 紧急插队,已暂停':` · 暂停于「${STEPS[d.step]}」`):'';
+  const rb=d.state==='analyzing'?`<button class="icon sm" title="暂停修复" onclick="event.stopPropagation();pauseDefect('${d.id}')">${ic('pause',14)}</button>`
+    :d.state==='paused'&&!d.preempted&&listsOf(d.id).length?`<button class="icon sm" title="继续修复" onclick="event.stopPropagation();resumeDefect('${d.id}')">${ic('play',13)}</button>`:'';
+  return `<div class="dr ${selId===d.id?'sel':''} ${ghost?'ghost':''}" data-id="${d.id}" onclick="openDetail('${d.id}')">
+   <span class="idx">${idx}</span><div class="sti ${d.state}">${stIcon(d.state)}</div>
+   <div class="ib"><div class="r1"><span class="id">${d.id}</span>${priDot(d.pri)}${urgTag(d)}${cur?'<span class="tag acc">当前</span>':''}${d.state==='review'&&d.stale?'<span class="tag amb">待复核</span>':''}${ghost?'<span class="tag gr">已移出清单</span>':''}</div>
+   <div class="tt">${esc(d.title)}</div><div class="mt">${d.type} · ${esc(d.req)}${extra}</div></div>
+   <div class="rt">${rb}${badge(d)}</div></div>`;
+}
+function workHTML(){
+  const l=LS(viewList)||activeList()||SL()[0];
+  if(!l)return `<div class="pc"><div class="ph"><h1>缺陷</h1></div>${emptyBlock('layers','还没有清单','先创建一个清单,把要处理的缺陷放进去。',`<button class="btn primary lg" onclick="go('lists')">去创建清单</button>`)}</div>`;
+  viewList=l.id;
+  const st=listState(l),a=activeList();
+  const order=[...l.ids];
+  [...GH.entries()].sort((x,y)=>x[1]-y[1]).forEach(([id,i])=>{if(!order.includes(id))order.splice(Math.min(i,order.length),0,id)});
+  const L=order.map(get).filter(Boolean),mine=l.ids.map(get).filter(Boolean);
+  const aiDone=mine.filter(d=>!UNDONE.includes(d.state)).length,rv=mine.filter(d=>d.state==='review'),cur=firstReview(l);
+  const pz=mine.find(d=>d.state==='paused'&&!d.preempted)||mine.find(d=>d.state==='paused');
+  const head=`<div class="ph"><div class="pt"><div><div class="ttlrow"><button class="ttl" onclick="openCurPop(event)" title="切换清单">${l.urgent?ic('flame',22):''}<span class="t">${esc(l.name)}</span>${ic('chevd',18)}</button>${lbadge(l)}</div>
+    <div class="mut">${l.urgent?'插队处理,优先于所有清单':'AI 会按顺序逐个修复清单里的缺陷,你只需要审核结果'}</div></div><div class="grow"></div>
+    <span class="chip">${ic('folder',14)} mbo-android ${ic('branch',14)} main</span></div></div>`;
+  let bn='';
+  if(st==='paused')bn=`<div class="bn">${ic('pause',18)}<div class="grow"><b>${pz?`已暂停于 ${pz.id} · ${STEPS[pz.step]}`:'清单已暂停'}</b><span>${pz?'进度已保存,继续后会从这里接着处理。':'继续后会从第一个未处理完的缺陷开始。'}</span></div>${actBtn(l,1)}</div>`;
+  else if(st==='idle'&&!l.urgent)bn=`<div class="bn info">${ic('info',18)}<div class="grow"><b>这个清单还没开始处理</b><span>${a?`AI 正在处理「${esc(a.name)}」,开始后会排在它后面。`:'开始后,AI 会按下面的顺序逐个修复,不需要你守着。'}</span></div>${actBtn(l,1)}</div>`;
+  else if(st==='waiting')bn=`<div class="bn info">${ic('clock',18)}<div class="grow"><b>排队中,前面还有「${esc(a.name)}」</b><span>${a.urgent?'紧急缺陷优先,处理完会自动恢复这个清单。':'轮到这个清单时会自动开始。'}</span></div>${a.urgent?'':`<button class="btn sm" onclick="jumpList('${l.id}')">优先处理这个清单</button>`}</div>`;
+  else if(st==='done')bn=`<div class="bn ok">${ic('check',18)}<div class="grow"><b>AI 已处理完${l.urgent?'紧急缺陷':'这个清单'}</b><span>${rv.length?`还有 ${rv.length} 个缺陷等你审核。`:'缺陷都已处理完毕。'}</span></div></div>`;
+  const empty=l.urgent?emptyBlock('flame','没有紧急缺陷','遇到要马上处理的缺陷,在详情或搜索结果里点「立即处理」,它就会插队出现在这里。'):emptyBlock('layers','这个清单还是空的','去「清单」页编辑它,或在缺陷详情里把缺陷加进来。',`<button class="btn" onclick="openEditor('${l.id}')">编辑清单</button>`);
+  return `<div class="pc">${head}
+   <div class="swr"><span class="tag gr">${l.ids.length} 条</span>
+    <span class="grow"></span><div class="pm">AI 进度<div class="bar"><i style="width:${mine.length?aiDone/mine.length*100:0}%"></i></div>${aiDone} / ${mine.length}</div>
+    ${rv.length?`<button class="btn" onclick="openDetail('${cur.id}')">去审核<span class="tag sa">${rv.length}</span></button>`:''}
+    ${st==='running'||st==='waiting'?actBtn(l):''}</div>
+   ${bn}
+   <div class="rows">${L.map((d,i)=>item(d,i+1,d===cur,l)).join('')}</div>
+   ${L.length?'':empty}</div>`;
+}
+function openCurPop(e){
+  e.stopPropagation();
+  if($('#pop').innerHTML){closePop();return}
+  const r=e.currentTarget.getBoundingClientRect(),P=$('#pop');
+  P.style.left=r.left+'px';P.style.top=(r.bottom+8)+'px';
+  P.innerHTML=`<div class="pop" style="width:360px" onclick="event.stopPropagation()"><h5>选择清单</h5>${SL().map(l=>`<button class="lpi ${l.id===viewList?'on':''}" onclick="switchList('${l.id}')"><div><b>${esc(l.name)}</b><span>${lmeta(l)}</span></div>${lbadge(l)}${l.id===viewList?ic('check',16):'<i style="width:16px;flex:none"></i>'}</button>`).join('')}<div style="height:6px"></div></div>`;
+}
+function switchList(id){viewList=id;GH.clear();closePop();refresh()}
+
+/* ========== 页面:清单 ========== */
+function listsHTML(){
+  const un=unlisted();
+  const card=l=>{
+    const ds=l.ids.map(get).filter(Boolean);
+    const c={accepted:0,rejected:0,passed:0,review:0};ds.forEach(d=>{if(c[d.state]!==undefined)c[d.state]++});
+    const pend=ds.filter(d=>UNDONE.includes(d.state)).length,aiDone=ds.length-pend;
+    const lg=[[c.accepted,'var(--g)','接受'],[c.rejected,'var(--r)','拒绝'],[c.passed,'var(--faint)','跳过'],[c.review,'var(--acc)','待审核'],[pend,'color-mix(in srgb,var(--acc) 28%,var(--line))','未处理']];
+    return `<div class="lc ${listState(l)==='running'?'cur':''} ${l.urgent?'urg':''}" onclick="viewL('${l.id}')" title="查看「${esc(l.name)}」中的缺陷">
+     <span class="go">${ic('arrow',18)}</span>
+     <div class="lct">${l.urgent?ic('flame',17):''}<b>${esc(l.name)}</b>${lbadge(l)}</div>
+     <div class="mut" style="font-size:13px">${lmeta(l)}</div>
+     <div class="dist">${lg.map(x=>x[0]?`<i style="flex:${x[0]};background:${x[1]}"></i>`:'').join('')}</div>
+     <div class="leg">${lg.filter(x=>x[0]).map(x=>`<span><i style="background:${x[1]}"></i>${x[2]} ${x[0]}</span>`).join('')}</div>
+     <div class="lcf"><span class="lprog">AI 已处理 ${aiDone} / ${ds.length}${c.review?` · <b>${c.review} 个待审核</b>`:''}</span><span class="grow"></span>
+      ${l.urgent?'':`<button class="icon" title="编辑清单" onclick="event.stopPropagation();openEditor('${l.id}')">${ic('edit',15)}</button>
+      <button class="icon" title="删除清单" onclick="event.stopPropagation();askDel('${l.id}')">${ic('trash',15)}</button>`}
+      ${actBtn(l,1)}</div></div>`;
+  };
+  return `<div class="pc"><div class="ph"><div class="pt"><div><h1>清单</h1><div class="mut">把要处理的缺陷分组,点开清单即可查看并开始处理</div></div><div class="grow"></div>
+    <button class="btn primary lg" onclick="openEditor()">${ic('plus',16)}新建清单</button></div></div>
+   ${un.length?`<div class="bn">${ic('alert',20)}<div class="grow"><b>有 ${un.length} 个缺陷还没加入任何清单</b><span>不在清单里的缺陷不会被自动处理,建议尽快归类。</span></div><button class="btn sm" onclick="openEditor(null,'unl')">一键新建清单</button></div>`:''}
+   ${LISTS.length?`<div class="grid">${SL().map(card).join('')}<div class="lc lcnew" onclick="openEditor()">${ic('plus',22)}<span>新建清单</span></div></div>`
+     :emptyBlock('layers','还没有任何清单','新建一个清单,挑选要让 AI 处理的缺陷。',`<button class="btn primary lg" onclick="openEditor()">新建清单</button>`)}</div>`;
+}
+function viewL(id){viewList=id;GH.clear();go('work')}
+function askDel(id){
+  const l=LS(id),only=l.ids.filter(x=>listsOf(x).length===1).length;
+  modal(`<h3>删除清单「${esc(l.name)}」?</h3><div class="sub">${lmeta(l)}。缺陷本身不会被删除。</div>
+   ${only?`<div class="note" style="margin-top:0">其中 ${only} 个缺陷只属于这个清单,删除后它们会变成「未入清单」。</div>`:''}
+   ${listState(l)==='running'?`<div class="note">这个清单正在处理中,删除后正在修复的缺陷会被暂停并保存进度。</div>`:''}
+   <footer><button class="btn" onclick="closeModal()">取消</button><button class="btn danger" onclick="doDel('${id}')">确认删除</button></footer>`);
+}
+function doDel(id){
+  const l=LS(id);if(listState(l)==='running')pauseList(id,true);
+  LISTS=LISTS.filter(x=>x.id!==id);
+  if(viewList===id)viewList=(activeList()||LISTS[0])?.id||null;
+  closeModal();notify(`已删除清单「${l.name}」`,'清单里的缺陷仍可以在搜索中找到','skip',null,true);tick();
+}
+
+/* ========== 页面:搜索 ========== */
+function searchHTML(){
+  return `<div class="pc"><div class="ph"><h1>搜索</h1><div class="mut">按标题模糊搜索全部缺陷,不限于清单</div></div>
+   <div class="sbar"><div class="sin">${ic('search',18)}<input id="sq" placeholder="输入缺陷标题的关键词,例如「登录」" value="${esc(S.q)}" oninput="S.q=this.value" onkeydown="if(event.key==='Enter')doSearch()"></div><button class="btn primary lg" onclick="doSearch()">搜索</button></div>
+   <div id="sres">${searchRes()}</div></div>`;
+}
+const fuzzy=(q,s)=>{q=q.toLowerCase().replace(/\s/g,'');s=s.toLowerCase().replace(/\s/g,'');let i=0;for(const c of s){if(c===q[i])i++}return i===q.length};
+function doSearch(){
+  const q=($('#sq')?.value||S.q).trim();S.q=q;
+  S.done=!!q;
+  const sub=D.filter(d=>d.title.toLowerCase().includes(q.toLowerCase()));
+  const loose=D.filter(d=>!sub.includes(d)&&fuzzy(q,d.title));
+  S.ids=q?[...sub,...loose].map(d=>d.id):[];
+  renderSearchRes();
+}
+function searchRes(){
+  if(!S.done)return emptyBlock('search','搜索任意缺陷','输入标题关键词,找到后点开即可查看详情,或把它加入清单。');
+  if(!S.ids.length)return emptyBlock('search','没有找到相关缺陷',`没有标题匹配「${esc(S.q)}」的缺陷,换个关键词试试。`);
+  return `<div class="cnt">找到 ${S.ids.length} 个匹配「${esc(S.q)}」的缺陷</div>`+S.ids.map(id=>{
+    const d=get(id);
+    return `<div class="dr ${selId===d.id?'sel':''}" onclick="openDetail('${d.id}')"><div class="sti ${d.state}">${stIcon(d.state)}</div>
+     <div class="ib"><div class="r1"><span class="id">${d.id}</span>${priDot(d.pri)}${urgTag(d)}</div><div class="tt">${esc(d.title)}</div><div class="mt">${d.type} · ${esc(d.req)}</div></div>
+     <div class="rt">${urgBtn(d)}${listChips(d.id)}${badge(d)}</div></div>`}).join('');
+}
+function renderSearchRes(){const b=$('#sres');if(b)b.innerHTML=searchRes()}
+
+
+/* ========== 设置 / 首次启动 ========== */
+const sw=on=>`<div class="sw ${on?'on':''}" onclick="this.classList.toggle('on')"></div>`;
+function rows(){return `
+ <div class="sr"><div class="si">${ic('chat',18)}</div><div class="tx"><b>飞书账号</b><span>已授权 · 用于拉取分配给你的缺陷、回写状态与评论</span></div><span class="tag g">已连接</span><button class="btn sm">重新授权</button></div>
+ <div class="sr"><div class="si">${ic('user',18)}</div><div class="tx"><b>Git 身份</b><span>使用本机 git 配置 · user.name / user.email 已检测</span></div><span class="tag g">已检测</span></div>
+ <div class="sr" style="flex-wrap:wrap"><div class="si">${ic('folder',18)}</div><div class="tx"><b>工作仓库</b><span>FixMate 只会在这个仓库里创建临时分支和提交</span></div><button class="btn sm">选择文件夹…</button>
+   <div class="fg"><input class="inp" value="~/Documents/MBO/mbo-android" readonly><select class="inp"><option>主分支:main</option><option>develop</option></select></div></div>
+ <div class="sr" style="flex-wrap:wrap"><div class="si">${ic('rocket',18)}</div><div class="tx"><b>Jenkins 打包</b><span>接受方案并 push 后,通过 REST API 触发 OTA 并记录版本号</span></div><button class="btn sm">测试连接</button>
+   <div class="fg"><input class="inp" placeholder="Jenkins 地址" value="https://jenkins.mbo.local"><input class="inp" placeholder="Job 名称" value="android-ota"><input class="inp" placeholder="用户名" value="ci-bot"><input class="inp" type="password" placeholder="API Token" value="••••••••••"></div></div>`}
+function settingsHTML(){return `<div class="pc" style="max-width:760px"><div class="ph"><h1>设置</h1><div class="mut">账号、仓库与打包配置</div></div>
+  <div class="sec">${rows()}</div>
+  <div class="sec">
+   <div class="sr"><div class="si">${ic('bell',18)}</div><div class="tx"><b>收到新缺陷时通知</b><span>应用内弹窗 + 系统通知</span></div>${sw(true)}</div>
+   <div class="sr"><div class="si">${ic('party',18)}</div><div class="tx"><b>清单处理完成时通知</b><span>当前清单里的缺陷都处理完后提醒你</span></div>${sw(true)}</div>
+  </div></div>`}
+function onboardHTML(){return `<div class="pc" style="max-width:760px"><div class="hero"><div class="logo">F</div><h1>欢迎使用 FixMate</h1><p>自动拉取飞书缺陷,让 AI 帮你修,你只负责审核。</p></div>
+  <div class="sec">${rows()}</div>
+  <div style="text-align:center"><button class="btn primary lg" onclick="go('work')">开始使用</button></div></div>`}
+
+
+/* ========== 渲染调度 ========== */
+function renderPage(){
+  let m=$('#app .main');
+  if(!m){m=document.createElement('div');m.className='main';m.innerHTML='<div id="ubar"></div><div class="page"></div>';$('#app').append(m)}
+  const p=m.querySelector('.page'),y=p.scrollTop;
+  p.innerHTML=({work:workHTML,lists:listsHTML,search:searchHTML,settings:settingsHTML,onboard:onboardHTML})[view]();
+  p.scrollTop=y;renderUbar();
+}
+function renderUbar(){
+  const b=$('#ubar');if(!b)return;
+  const u=URG();let h='';
+  if(u&&view!=='onboard'){
+    const ds=u.ids.map(get).filter(Boolean),left=ds.filter(d=>UNDONE.includes(d.state)),rv=ds.find(d=>d.state==='review');
+    const yielded=LISTS.some(l=>!l.urgent&&l.started&&l.on&&undone(l));
+    if(left.length&&u.on){
+      const t=left.find(d=>d.state==='analyzing')||left[0];
+      h=`<div class="ubar" onclick="openDetail('${t.id}')">${ic('flame',16)}<b>紧急处理中</b><span class="gt">${t.id} · ${esc(t.title)}</span>${left.length>1?`<span class="tag ur">还有 ${left.length-1} 个排队</span>`:''}${yielded?'<span class="uh">其它清单已暂时让位,处理完会自动恢复</span>':''}<span class="uo">查看${ic('chev',14)}</span></div>`;
+    }else if(rv)h=`<div class="ubar ok" onclick="openDetail('${rv.id}')">${ic('flame',16)}<b>紧急缺陷已就绪</b><span class="gt">${rv.id} · ${esc(rv.title)}</span><span class="uo">去审核${ic('chev',14)}</span></div>`;
+  }
+  b.innerHTML=h;
+}
+function refresh(){
+  if(view==='work'||view==='lists')renderPage();else if(view==='search')renderSearchRes();
+  renderRail();renderUbar();
+  if(DR&&DR.kind==='detail'){const s=sigOf(DR.id);if(s!==DR.sig)fillDrawer()}
+}
+function render(){renderRail();renderPage();renderUbar()}
+function go(v){closePop();if(DR)return;view=v;render()}
+
+/* ========== 侧栏通用 ========== */
+function mountDrawer(kind,id){
+  DR={kind,id};
+  if(!$('#drawer .drawer'))$('#drawer').innerHTML='<div class="scrim" onclick="closeDrawer()"></div><aside class="drawer"></aside>';
+  $('#app').classList.toggle('dopen',kind==='detail');
+  fillDrawer();
+}
+function fillDrawer(){
+  const a=$('#drawer aside');if(!a||!DR)return;
+  if(DR.kind==='edit'){a.innerHTML=editorHTML();eRender()}
+  else{const y=a.querySelector('.dscroll')?.scrollTop||0;DR.sig=sigOf(DR.id);a.innerHTML=detailShell();const s=a.querySelector('.dscroll');if(s)s.scrollTop=y}
+}
+function sigOf(id){
+  const d=get(id);if(!d)return '';const a=activeList();
+  return [d.state,d.step,d.stale,!!rechecking[id],d.fix?.commit,listsOf(id).map(l=>l.id+listState(l)).join(),inUrgent(d),d.preempted,d.rebased,a?.id,
+    a?a.ids.map(get).filter(x=>x&&UNDONE.includes(x.state)).length:'',D.filter(x=>x.state==='review').length,viewList].join('|');
+}
+let closing=false;
+function closeDrawer(){
+  const a=$('#drawer aside');if(!a||closing)return;closing=true;closePop();
+  a.classList.add('out');const sc=$('#drawer .scrim');if(sc)sc.style.opacity=0;
+  setTimeout(()=>{
+    $('#drawer').innerHTML='';$('#app').classList.remove('dopen');DR=null;E=null;selId=null;closing=false;
+    if(view==='work'&&GH.size){
+      renderPage();
+      document.querySelectorAll('.dr.ghost').forEach(el=>el.classList.add('leaving'));
+      setTimeout(()=>{GH.clear();refresh()},480);
+    }else{GH.clear();render()}
+  },200);
+}
+
+/* ========== 缺陷详情侧栏 ========== */
+function openDetail(id){selId=id;mountDrawer('detail',id);if(view==='work'||view==='search')refresh()}
+const feishuUrl=d=>`https://mbo.feishu.cn/project/bug/detail/${d.id}`;
+function openFeishu(e,id){e.preventDefault();notify('原型演示','正式版会在浏览器打开:'+feishuUrl(get(id)),'new',null,true)}
+function listBox(d){
+  const ls=listsOf(d.id);
+  if(!ls.length)return `<div class="lbox none">${ic('alert',20)}<div class="lt"><b>还不在任何清单中</b><span>不在清单里的缺陷不会被自动处理</span></div><button class="btn sm primary" onclick="openListPop(event,'add','${d.id}')">${ic('plus',13)}添加到清单</button></div>`;
+  return `<div class="lbox">${ic('layers',20)}<div class="lt"><b>所属清单</b><div class="chips" style="margin-top:6px">${ls.map(l=>`<span class="tag ln" style="max-width:200px">${esc(l.name)}</span>`).join('')}</div></div>
+   <button class="btn sm danger" onclick="openListPop(event,'rm','${d.id}')">${ic('minus',13)}从清单中删除</button></div>`;
+}
+function openListPop(e,m,id){
+  e.stopPropagation();
+  if($('#pop').innerHTML){closePop();return}
+  const src=m==='add'?SL().filter(l=>!l.urgent&&!l.ids.includes(id)):listsOf(id);
+  const r=e.currentTarget.getBoundingClientRect(),P=$('#pop');
+  P.style.left=Math.max(12,Math.min(r.right-340,innerWidth-352))+'px';P.style.top=(r.bottom+8)+'px';
+  P.innerHTML=`<div class="pop" style="width:340px" onclick="event.stopPropagation()"><h5>${m==='add'?'添加到哪个清单':'从哪个清单中删除'}</h5>
+   ${src.length?src.map(l=>`<button class="lpi" onclick="applyList('${m}','${id}','${l.id}')"><div><b>${esc(l.name)}</b><span>${lmeta(l)}</span></div>${m==='add'?ic('plus',16):ic('minus',16)}</button>`).join(''):'<div class="faint" style="padding:10px 14px 14px;font-size:13px">还没有清单,请先到「清单」页新建。</div>'}<div style="height:6px"></div></div>`;
+}
+function applyList(m,id,lid){
+  const l=LS(lid),d=get(id);closePop();
+  if(m==='add'){
+    const was=listState(l),wasUndone=UNDONE.includes(d.state);
+    if(!l.ids.includes(id))l.ids.push(id);
+    const now=listState(l);let msg=id;
+    if(was==='done'&&wasUndone)msg=now==='running'?'清单已自动重新开始处理,AI 会处理新加入的缺陷':now==='waiting'?'清单重新进入处理队列,轮到后会自动处理':'清单保持暂停,继续后会处理它';
+    else if(now==='running')msg='已排到清单末尾,会按顺序处理';
+    notify(`已添加到「${l.name}」`,msg,'ok',null,true);
+  }else{
+    const idx=l.ids.indexOf(id);l.ids=l.ids.filter(x=>x!==id);
+    if(lid===viewList&&view==='work')GH.set(id,idx);
+    notify(`已从「${l.name}」中删除`,id,'skip',null,true);
+  }
+  tick();fillDrawer();
+}
+function stepper(cur,paused){
+  return `<div class="card"><div class="steps">${STEPS.map((s,i)=>`<div class="stp ${i<cur?'done':i===cur?(paused?'pause':'cur'):''}"><div class="n">${i<cur?ic('check',12):i===cur&&paused?ic('pause',11):i+1}</div>${s}</div>`).join('')}</div></div>`;
+}
+function partial(d){
+  const n=[];
+  if(d.step>=1)n.push(`判断完成:可通过修改代码解决,置信度 ${86+d.id.charCodeAt(6)%10}%`);
+  else n.push('正在分析缺陷描述,还没有得出结论');
+  if(d.step>=2){n.push(`已基于 main 创建临时分支 <span class="mono">fixmate/${d.id}</span>`);n.push(d.note||'已定位到相关代码,已完成的修改保存在临时分支上')}
+  if(d.step>=2)n.push('暂停时未提交的修改保存在该缺陷独立的工作目录里,不影响你自己的工作区');
+  return n;
+}
+function detailParts(d){
+  const top=`<div><h1 class="dtitle" title="${esc(d.title)}">${esc(d.title)}</h1>
+   <div class="tags2"><span class="tag gr">${d.type}</span><span class="tag gr">报告人 ${d.who}</span><span class="tag gr">${d.time}</span></div></div>
+   <div class="mrs"><div class="mr"><label>关联需求</label><span title="${esc(d.req)}">${esc(d.req)}</span></div><div class="mr"><label>规划版本</label><span title="${esc(d.ver)}">${esc(d.ver)}</span></div></div>
+   ${listBox(d)}
+   <div class="card"><div class="ct">${ic('chat',16)}缺陷描述<span class="sub">来自飞书</span></div><p>${esc(d.desc)}</p></div>`;
+  const bar=(hint,btns)=>`<div class="act"><div class="actin"><span class="hint grow">${hint}</span>${btns}</div></div>`;
+  let body='',act='';
+  if(d.state==='review'){
+    const stale=d.stale;
+    body=(stale?`<div class="card info"><div class="ct">${ic('refresh',16)}此方案需要复核<span class="sub">生成于 ${d.cached.time} · 基线 ${d.cached.base}</span></div>
+        <p>该方案生成于你审核其它缺陷期间,基于较早的代码。接受前,AI 会结合<b>最新 main</b> 与下方<b>缓存结论</b>重新评估,避免与已合入的修改冲突。</p>
+        <div class="concl"><b>缓存结论</b>:${d.cached.text}</div>
+        <div style="margin-top:12px"><button class="btn primary sm" onclick="recheck('${d.id}')" ${rechecking[d.id]?'disabled':''}>${rechecking[d.id]?'<span class="spin"></span>正在复核…':ic('refresh',14)+'立即复核'}</button></div></div>`:'')+fixCards(d);
+    act=bar(stale?'请先完成复核,再接受该方案':'接受后将 cherry-pick 到 main、push 并通过 Jenkins 打 OTA',
+      `<button class="btn" onclick="openPass('${d.id}')">${ic('skip',14)}跳过</button>
+       <button class="btn danger" onclick="openReject('${d.id}')">${ic('x',14)}拒绝</button>
+       <button class="btn good lg" onclick="openAccept('${d.id}')" ${stale?'disabled':''}>${ic('check',16)}接受并发布</button>`);
+  }else if(d.state==='analyzing'){
+    body=stepper(Math.min(d.step,2))+(d.rebased?`<div class="card info"><div class="ct">${ic('refresh',16)}已同步最新代码</div><p>紧急修复已合入 main。AI 已把这个缺陷的临时分支变基到最新 main,并结合之前保存的中间结果快速复核,然后从暂停处继续。</p></div>`:'')+`<div class="card"><div class="ct"><div class="spin"></div>AI 正在处理<span class="sub">${STEPS[Math.min(d.step,2)]}…</span></div><div class="sk" style="width:90%"></div><div class="sk" style="width:72%"></div><div class="sk" style="width:81%"></div></div>`;
+    act=bar('暂停后会保存当前进度,之后可以从这里接着处理',`<button class="btn" onclick="pauseDefect('${d.id}')">${ic('pause',14)}暂停修复</button>`);
+  }else if(d.state==='paused'){
+    const ls=listsOf(d.id);
+    body=stepper(d.step,true)+(d.preempted?`<div class="card info"><div class="ct">${ic('flame',16)}被紧急缺陷打断</div><p>AI 去处理更紧急的缺陷了,已保存这个缺陷的进度。紧急缺陷处理完后会自动恢复,不需要手动操作。</p></div>`:'')+`<div class="card warn"><div class="ct">${ic('pause',16)}已保存的中间结果<span class="sub">暂停于 ${d.pausedAt||'--'}</span></div><ul>${partial(d).map(x=>`<li>${x}</li>`).join('')}</ul></div>`;
+    act=d.preempted&&ls.some(l=>l.started&&l.on)?bar('紧急处理完成后会自动恢复,无需手动操作',''):bar(ls.length?`继续后从「${STEPS[d.step]}」接着处理,不会重复已完成的步骤`:'它不在任何清单中,先加入清单才能继续',
+      `<button class="btn primary" ${ls.length?'':'disabled'} onclick="resumeDefect('${d.id}')">${ic('play',14)}继续修复</button>`);
+  }else if(d.state==='queued'){
+    const a=activeList();
+    if(a&&a.ids.includes(d.id)){
+      const ahead=a.ids.slice(0,a.ids.indexOf(d.id)).map(get).filter(x=>x&&UNDONE.includes(x.state)).length;
+      body=`<div class="card"><div class="ct">${ic('clock',16)}排队中</div><p>「${esc(a.name)}」正在按顺序处理,前面还有 ${ahead} 个缺陷,轮到它时会自动开始。</p></div>`;
+    }else{
+      const ls=listsOf(d.id);
+      if(ls.length){
+        const rank=x=>({running:0,waiting:1,paused:2,idle:3,done:4})[listState(x)];
+        const l=[...ls].sort((x,y)=>rank(x)-rank(y))[0],s=listState(l);
+        const txt=s==='waiting'?`所在清单「${esc(l.name)}」正在排队,前面的清单处理完后会自动开始。`:s==='paused'?`所在清单「${esc(l.name)}」已暂停。`:`所在清单「${esc(l.name)}」还没开始处理。`;
+        body=`<div class="card"><div class="ct">${ic('clock',16)}${queuedLive(d)?'排队中':'未开始'}</div><p>${txt}</p></div>`;
+        if(s==='idle'||s==='paused')act=bar('开始后,AI 会按清单顺序逐个修复',`<button class="btn primary" onclick="startList('${l.id}')">${ic('play',14)}${s==='idle'?'开始处理':'继续处理'}「${esc(l.name)}」</button>`);
+      }else body=`<div class="card"><div class="ct">${ic('clock',16)}未开始</div><p>它还不在任何清单中。加入清单并开始处理后,AI 才会修复它。</p></div>`;
+    }
+  }else if(d.state==='passed'){
+    body=`<div class="card"><div class="ct">${ic('skip',16)}已跳过${d.auto?'<span class="tag sa">AI 自动判断</span>':''}</div><p>${esc(d.reason)}</p></div>`;
+  }else if(d.state==='rejected'){
+    body=`<div class="card"><div class="ct">${ic('x',16)}已拒绝该方案</div><p>${d.reason?esc(d.reason):'未填写原因'}</p>
+      <div class="res"><span class="tag ${d.kept?'g':'gr'}">${d.kept?'已保留 AI 修改':'已丢弃 AI 修改'}</span></div>
+      ${d.kept?`<div class="note">修改已通过 <span class="mono">git cherry-pick -n</span> 放入 main 的工作区(未提交),临时分支已删除。</div>`:''}</div>`;
+  }else if(d.state==='accepted'){
+    body=`<div class="card"><div class="ct">${ic('check',16)}已接受并发布<span class="sub">${d.commit?'commit '+d.commit:''}</span></div>
+      <ul class="tl">${['已 cherry-pick 到 main 并 push','已删除本地临时分支','Jenkins 已打包 OTA','飞书缺陷已标记为已解决'].map(t=>`<li>${ic('check',14)}${t}</li>`).join('')}</ul>
+      <div class="res"><span class="tag g">OTA ${d.ota}</span></div>
+      <div class="cmt"><span class="faint">已在飞书评论:</span> <span class="mono">#${d.ota}</span></div></div>`;
+  }
+  if(FINAL.includes(d.state)){
+    const vl=LS(viewList),l=vl&&vl.ids.includes(d.id)?vl:listsOf(d.id)[0],nx=firstReview(l,d.id);
+    if(nx){const n=l.ids.map(get).filter(x=>x&&x.state==='review'&&x.id!==d.id).length;
+      act=bar(`「${esc(l.name)}」还有 ${n} 个待审核的缺陷`,`<button class="btn primary" onclick="openDetail('${nx.id}')">下一个待审核${ic('chev',15)}</button>`)}
+  }
+  return {body:top+body,act};
+}
+function detailShell(){
+  const d=get(DR.id);if(!d)return '';
+  const {body,act}=detailParts(d);
+  return `<div class="dtop"><span class="id">${d.id}</span>${badge(d)}${priDot(d.pri)}${urgTag(d)}<span class="grow"></span>${urgBtn(d)}
+    <a class="btn sm" href="${feishuUrl(d)}" title="${feishuUrl(d)}" onclick="openFeishu(event,'${d.id}')">${ic('external',14)}在飞书中打开</a>
+    <button class="icon" onclick="closeDrawer()" title="关闭 (Esc)">${ic('x',18)}</button></div>
+   <div class="dscroll"><div class="dwrap">${body}</div></div>${act}`;
+}
+
+function fixCards(d){
+  const f=d.fix;
+  const files=f.files.map((x,i)=>`<div class="file ${i===0?'open':''}"><div class="fh" onclick="this.parentNode.classList.toggle('open')">
+    <span class="chev">${ic('chev',14)}</span>${ic('file',14)}<span class="mono">${x.name}</span><span class="grow"></span><span class="mono add">+${x.add}</span><span class="mono del">−${x.del}</span></div>
+    <div class="diff">${x.lines.map(l=>`<div class="${l[0]}">${esc(l[1])}</div>`).join('')}</div></div>`).join('');
+  return `
+   <div class="card"><div class="ct">${ic('spark',16)}AI 判断<span class="tag g">可通过代码修复 · 置信度 ${f.conf}%</span></div><p>${f.judge}</p></div>
+   ${stepper(3)}
+   <div class="card"><div class="ct">${ic('layers',16)}修复方案<span class="sub">${f.files.length} 个文件 · +${f.files.reduce((a,x)=>a+x.add,0)} −${f.files.reduce((a,x)=>a+x.del,0)}</span></div>
+    <ul>${f.summary.map(s=>`<li>${s}</li>`).join('')}</ul>
+    <div class="gitline"><span class="chip">${ic('branch',13)}<span class="mono">${f.branch}</span></span><span class="chip mono">${f.commit}</span><span class="chip">基于 main</span></div>
+    <div class="concl"><b>结论摘要</b>(已缓存,供后续缺陷参考):${f.conclusion}</div>
+    ${files}</div>
+   ${f.recheck?`<div class="card info"><div class="ct">${ic('refresh',16)}复核结果</div><p>${f.recheck}</p></div>`:''}
+   ${f.conflicts.length?`<div class="card warn"><div class="ct">${ic('alert',16)}关联提示</div>${f.conflicts.map(c=>`<p>与 <b>${c.with}</b> 修改了同一文件 <span class="mono">${c.file}</span>(第 ${c.range} 行附近)。建议先处理 ${c.with},再复核本方案。</p>`).join('')}</div>`:''}`;
+}
+
+
+/* ========== 新建 / 编辑清单侧栏 ========== */
+function openEditor(id,pre){
+  const l=id&&LS(id);
+  E={id:l?l.id:null,name:l?l.name:(pre==='unl'?'未归类缺陷':''),
+     sel:new Set(l?l.ids:(pre==='unl'?unlisted().map(d=>d.id):[])),
+     f:{types:new Set(),pris:new Set(),ver:'',req:'',unl:false},fopen:true};
+  mountDrawer('edit');
+}
+function editorHTML(){
+  return `<div class="dhd"><h2>${E.id?'编辑清单':'新建清单'}</h2><span class="grow"></span><button class="icon" onclick="closeDrawer()" title="关闭 (Esc)">${ic('x',18)}</button></div>
+   <div class="en"><label>清单名称</label><input class="inp" id="ename" maxlength="40" placeholder="例如:本周必修、登录相关" value="${esc(E.name)}" oninput="E.name=this.value;this.classList.remove('err');$('#enamerr').textContent=''">
+    <div class="ferr" id="enamerr"></div><div class="hint" style="margin-top:6px">${ic('info',13)}名称可以重复,方便你按习惯命名。</div></div>
+   <div class="ef" id="efl"></div><div class="etool" id="etl"></div><div class="escroll" id="elist"></div><div class="foot" id="efoot"></div>`;
+}
+function ePass(d){
+  const f=E.f;
+  if(f.types.size&&!f.types.has(d.type))return false;
+  if(f.pris.size&&!f.pris.has(d.pri))return false;
+  if(f.ver&&d.ver!==f.ver)return false;
+  if(f.req&&d.req!==f.req)return false;
+  if(f.unl&&listsOf(d.id).length)return false;
+  return true;
+}
+const eVisible=()=>D.filter(ePass);
+const eFCount=()=>E.f.types.size+E.f.pris.size+(E.f.ver?1:0)+(E.f.req?1:0)+(E.f.unl?1:0);
+function eRender(){eF();eT();eL();eFoot()}
+function eF(){
+  const f=E.f,n=eFCount();
+  const chips=(arr,set,col)=>arr.map(t=>`<button class="cp ${f[set].has(t)?'on':''}" onclick="eTogF('${set}','${t}')">${col?`<i style="width:7px;height:7px;border-radius:50%;background:${PRI[t]}"></i>`:''}${t}</button>`).join('');
+  const acf=(k,ph)=>`<div class="acw">${f[k]?tok((k==='ver'?'版本 ':'需求 ')+f[k],`eRm('${k}')`):`<input class="inp" style="height:32px" placeholder="${ph}" oninput="ac('${k}',this.value)"><div id="ac-${k}"></div>`}</div>`;
+  $('#efl').innerHTML=`<div class="fr"><b style="font-size:13px">筛选缺陷</b>${n?`<span class="tag acc">${n}</span>`:''}<span class="grow"></span>
+    ${n?`<button class="btn sm ghost" onclick="eClearF()">清除筛选</button>`:''}<button class="btn sm ghost" onclick="E.fopen=!E.fopen;eF()">${E.fopen?'收起':'展开'}</button></div>`
+   +(E.fopen?`<div class="fr"><span class="fl">类型</span><div class="chips">${chips(TYPES,'types')}</div></div>
+     <div class="fr"><span class="fl">优先级</span><div class="chips">${chips(Object.keys(PRI),'pris',1)}</div></div>
+     <div class="fr">${acf('ver','规划版本,如 3.8')}${acf('req','关联需求,如 账号')}</div>
+     <div class="fr"><div class="sw ${f.unl?'on':''}" onclick="E.f.unl=!E.f.unl;eF();eT();eL()"></div><span style="font-size:13px">只看还没加入任何清单的缺陷</span></div>`:'');
+}
+function eT(){
+  const V=eVisible(),hidden=[...E.sel].filter(id=>!V.some(d=>d.id===id)).length;
+  $('#etl').innerHTML=`<button class="btn sm" onclick="eAll()">全选</button><button class="btn sm" onclick="eClear()">清空</button>
+   <span style="margin-left:6px"><b>已选 ${E.sel.size} 条</b>${hidden?`<span class="faint"> · 其中 ${hidden} 条被筛选隐藏</span>`:''}</span><span class="grow"></span><span class="faint" style="font-size:12px">符合筛选 ${V.length} 条</span>`;
+}
+function eL(){
+  const V=eVisible(),b=$('#elist'),y=b.scrollTop;
+  b.innerHTML=V.length?V.map(d=>{const on=E.sel.has(d.id);return `<div class="er ${on?'on':''}" onclick="eTog('${d.id}')"><span class="cb ${on?'on':''}">${ic('check',12)}</span>
+    <div class="ib"><div class="r1"><span class="id">${d.id}</span>${priDot(d.pri)}</div><div class="tt">${esc(d.title)}</div><div class="mt">${d.type} · ${esc(d.req)}</div></div>
+    <div class="rt">${listChips(d.id,1)}</div></div>`}).join(''):emptyBlock('filter','没有符合条件的缺陷','调整上方的筛选条件试试。');
+  b.scrollTop=y;
+}
+function eFoot(){
+  $('#efoot').innerHTML=`<span class="grow"></span><button class="btn" onclick="closeDrawer()">取消</button><button class="btn primary lg" ${E.sel.size?'':'disabled'} onclick="eSave()">${E.id?'保存修改':'保存清单'} · ${E.sel.size} 条</button>`;
+}
+function eTog(id){E.sel.has(id)?E.sel.delete(id):E.sel.add(id);eT();eL();eFoot()}
+function eAll(){eVisible().forEach(d=>E.sel.add(d.id));eT();eL();eFoot()}
+function eClear(){E.sel.clear();eT();eL();eFoot()}
+function eTogF(set,t){E.f[set].has(t)?E.f[set].delete(t):E.f[set].add(t);eF();eT();eL()}
+function eRm(k){E.f[k]='';eF();eT();eL()}
+function eSet(k,v){E.f[k]=v;eF();eT();eL()}
+function eClearF(){E.f={types:new Set(),pris:new Set(),ver:'',req:'',unl:false};eF();eT();eL()}
+function ac(k,q){
+  const box=$('#ac-'+k);if(!q.trim()){box.innerHTML='';return}
+  const hits=(k==='ver'?VERS:REQS).filter(s=>fuzzy(q,s));
+  box.innerHTML=hits.length?`<div class="acl">${hits.map(h=>`<button onclick="eSet('${k}',this.dataset.v)" data-v="${esc(h)}">${esc(h)}</button>`).join('')}</div>`:`<div class="acl"><div class="faint" style="font-size:12px;padding:8px 11px">没有匹配项</div></div>`;
+}
+function eSave(){
+  const name=E.name.trim();
+  if(!name){const i=$('#ename');i.classList.remove('err');void i.offsetWidth;i.classList.add('err');i.focus();$('#enamerr').textContent='请先给清单起个名字';return}
+  const ids=[...E.sel];let id=E.id;
+  if(id){const l=LS(id);l.name=name;l.ids=ids}
+  else{id='L-'+String(++listSeq).padStart(4,'0');LISTS.push({id,name,ids,created:'11-11',started:false,on:false,seq:0})}
+  const edit=!!E.id;
+  closeDrawer();
+  notify(edit?`已保存「${name}」`:`已创建清单「${name}」`,edit?`${ids.length} 个缺陷`:`${ids.length} 个缺陷 · 点击卡片即可查看并开始处理`,'ok',null,true);
+  setTimeout(tick,260);
+}
+
+
+/* ========== 浮层 / 通知 ========== */
+function closePop(){$('#pop').innerHTML=''}
+document.addEventListener('click',e=>{if(!e.target.closest('#pop'))closePop()});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('#modal').innerHTML)closeModal();else if($('#pop').innerHTML)closePop();else closeDrawer()});
+function notify(title,body,kind,id,quiet){
+  const col={new:['--acc-s','--acc','bell'],ok:['--g-s','--g','check'],skip:['--gr-s','--mut','skip'],done:['--g-s','--g','party'],warn:['--a-s','--a','alert']}[kind]||['--acc-s','--acc','bell'];
+  if(!quiet){notifs.unshift({title,body,kind,id,unread:true,time:nowS()});renderRail()}
+  const t=document.createElement('div');t.className='toast';
+  t.innerHTML=`<div class="ti" style="background:var(${col[0]});color:var(${col[1]})">${ic(col[2],17)}</div><div><b>${esc(title)}</b><span>${esc(body)}</span></div>`;
+  t.onclick=()=>{t.remove();if(id&&get(id))openDetail(id)};
+  $('#toasts').append(t);setTimeout(()=>t.remove(),quiet?3200:6500);
+}
+function toggleBell(e){
+  e.stopPropagation();
+  if($('#pop').innerHTML){closePop();return}
+  const r=e.currentTarget.getBoundingClientRect(),P=$('#pop');
+  P.style.left=(r.right+12)+'px';P.style.top=Math.max(12,Math.min(r.top-10,innerHeight-420))+'px';
+  P.innerHTML=`<div class="pop bell" onclick="event.stopPropagation()"><h4><b>通知</b><span class="faint">${notifs.length} 条</span></h4>
+   ${notifs.length?notifs.slice(0,8).map(n=>`<div class="bi" onclick="closePop();${n.id?`openDetail('${n.id}')`:''}">${n.unread?'<i class="u"></i>':'<i style="width:7px;flex:none"></i>'}<div><b>${esc(n.title)}</b><span class="mut">${esc(n.body)}</span><small>${n.time}</small></div></div>`).join(''):'<div class="faint" style="padding:24px;text-align:center">暂无通知</div>'}</div>`;
+  notifs.forEach(n=>n.unread=false);renderRail();
+}
+
+
+/* ========== 调度:清单状态机 ========== */
+function startList(id){            // 开始或继续一个清单:加入处理队列,不打断正在处理的清单
+  const l=LS(id),s0=listState(l);
+  if(s0==='running'||s0==='waiting')return;
+  if(!l.started){l.started=true;l.seq=++seqN}
+  l.on=true;
+  tick();
+  const s=listState(l),a=activeList();
+  if(s==='running')notify(`${s0==='idle'?'开始':'继续'}处理「${l.name}」`,'AI 会按顺序逐个修复','new',null,true);
+  else if(s==='waiting')notify(`「${l.name}」已加入处理队列`,`前面还有「${a.name}」,轮到后会自动开始`,'new',null,true);
+}
+function pauseList(id,silent){
+  const l=LS(id);l.on=false;
+  l.ids.map(get).forEach(d=>{if(d&&d.state==='analyzing'){d.state='paused';d.pausedAt=nowS();d.preempted=false}});
+  if(!silent){notify(`已暂停「${l.name}」`,'进度已保存,继续时从暂停处接着处理','skip',null,true);tick()}
+}
+function pauseDefect(id){
+  const l=listsOf(id).find(x=>listState(x)==='running');
+  if(l)pauseList(l.id);else{const d=get(id);d.state='paused';d.pausedAt=nowS();d.preempted=false;refresh()}
+}
+function resumeDefect(id){
+  const ls=listsOf(id),l=ls.find(x=>listState(x)==='paused')||ls.find(x=>['running','waiting'].includes(listState(x)))||ls[0];
+  if(l)startList(l.id);
+}
+function jumpList(id){              // 让某个清单插到队首,正在处理的清单暂时让位
+  const l=LS(id),a=activeList();
+  const mn=Math.min(...LISTS.filter(x=>x.started&&!x.urgent).map(x=>x.seq));
+  l.started=true;l.on=true;l.seq=mn-1;
+  tick();
+  notify(`已优先处理「${l.name}」`,a&&a!==l?`「${a.name}」暂时让位,进度已保存`:'AI 会按顺序逐个修复','new',null,true);
+}
+function tick(){
+  const a=activeList();
+  D.forEach(d=>{       // 不在活跃清单里的修复中缺陷:保存进度并暂停
+    if(d.state==='analyzing'&&!(a&&a.ids.includes(d.id))){
+      d.state='paused';d.pausedAt=nowS();d.pausedRev=mainRev;
+      d.preempted=listsOf(d.id).some(l=>l.started&&l.on);
+    }
+  });
+  if(a){
+    const ds=a.ids.map(get).filter(Boolean);
+    if(!ds.some(d=>d.state==='analyzing')){
+      const nx=ds.find(d=>d.state==='queued'||d.state==='paused');   // 第一个未处理完的缺陷
+      if(nx){
+        if(nx.state==='queued')nx.step=0;                             // 新缺陷从头开始
+        else if(nx.preempted&&mainRev>(nx.pausedRev||0))nx.rebased=true; // 被插队打断的:先同步最新 main
+        nx.preempted=false;nx.state='analyzing';                      // 已暂停的沿用保存的 step
+      }
+    }
+  }
+  if((a?.id)!==(lastActive?.id)){
+    if(lastActive!==undefined){
+      if(a&&a.urgent)notify('紧急处理中','AI 已切换去处理紧急缺陷,其它清单暂时让位,进度已保存','warn');
+      else if(lastActive&&lastActive.urgent&&a)notify(`已自动恢复「${a.name}」`,'紧急缺陷处理完成,从上次暂停处继续','ok',null,true);
+    }
+    lastActive=a||null;
+  }
+  LISTS.forEach(l=>{
+    const s=listState(l);
+    if(l._st!==undefined&&l._st!==s&&s==='done'&&l._st!=='idle'){
+      const n=l.ids.map(get).filter(d=>d&&d.state==='review').length;
+      notify(l.urgent?'紧急缺陷已处理完':`「${l.name}」处理完成`,n?`还有 ${n} 个缺陷等你审核`:'都已处理完毕','done');
+    }
+    l._st=s;
+  });
+  refresh();
+}
+function urgentAsk(id){
+  const u=URG(),busy=u.ids.map(get).filter(x=>x&&UNDONE.includes(x.state));
+  if(!busy.length){urgentAdd(id,'front');return}
+  const cur=busy.find(x=>x.state==='analyzing')||busy[0];
+  upos='front';ucur=cur.id;
+  modal(`<h3>立即处理 ${id}</h3><div class="sub">紧急队列里已经有 ${busy.length} 个缺陷,请选择这个缺陷的位置。</div>
+   <div id="uc"></div><div class="note" style="margin-top:4px">被打断的缺陷会保存进度,等更紧急的处理完后按顺序自动恢复。</div>
+   <footer><button class="btn" onclick="closeModal()">取消</button><button class="btn primary" onclick="urgentAdd('${id}',upos)">${ic('flame',14)}确认</button></footer>`);
+  ucRender();
+}
+function ucRender(){
+  $('#uc').innerHTML=`<button class="rc ${upos==='front'?'on':''}" onclick="upos='front';ucRender()"><div class="rd"></div><div><b>马上处理</b><span>打断正在处理的 ${ucur},保存它的进度,先处理这个缺陷</span></div></button>
+   <button class="rc ${upos==='back'?'on':''}" onclick="upos='back';ucRender()"><div class="rd"></div><div><b>排在紧急队列后面</b><span>不打断当前的紧急缺陷,依次处理</span></div></button>`;
+}
+function urgentAdd(id,pos){
+  const u=URG();
+  if(pos==='front')u.ids=[id,...u.ids.filter(x=>x!==id)];else if(!u.ids.includes(id))u.ids.push(id);
+  u.on=true;
+  if(pos==='front')D.forEach(x=>{       // 打断正在处理的其它紧急缺陷
+    if(x.state==='analyzing'&&x.id!==id&&u.ids.includes(x.id)){x.state='paused';x.pausedAt=nowS();x.pausedRev=mainRev;x.preempted=true}
+  });
+  closeModal();
+  notify('已加入紧急处理',`${id} ${pos==='front'?'马上开始处理':'会在紧急队列中依次处理'}`,'warn',null,true);
+  tick();fillDrawer();
+}
+setInterval(()=>{
+  let changed=false;
+  D.filter(d=>d.state==='analyzing').forEach(d=>{
+    d.step++;changed=true;
+    if(!d.fixable&&d.step>=1){d.state='passed';d.auto=true;d.reason='AI 判断:这是一条产品体验类建议,没有确定的代码修改目标,已自动跳过。如需处理请手动调整。';notify(`AI 已跳过 ${d.id}`,'不是可通过改代码解决的确定问题','skip',d.id)}
+    else if(d.step>=3){
+      d.state='review';
+      d.stale=listsOf(d.id).some(l=>l.ids.some(x=>x!==d.id&&get(x)?.state==='review'));
+      d.fix=d.fix||{conf:85+Math.floor(Math.random()*10),branch:'fixmate/'+d.id,commit:Math.random().toString(16).slice(2,9),judge:'问题描述明确,可通过修改代码解决。',summary:['定位到相关模块并修复','补充必要的测试'],conclusion:'已分析根因并完成修复,详见 diff。',files:[{name:'src/modules/'+d.req.replace(/\s/g,'').slice(0,8)+'/index.ts',add:8,del:3,lines:[['c','@@ -20,6 +20,11 @@'],['m','-   return legacy(x)'],['p','+   return safe(x)']]}],conflicts:[]};
+      if(d.stale)d.cached={time:nowS(),base:'a3f9c21',text:d.fix.conclusion};
+      notify(`方案已就绪 · ${d.id}`,d.title,'new',d.id);
+    }
+  });
+  if(changed)tick();
+},1600);
+function recheck(id){
+  rechecking[id]=true;fillDrawer();
+  setTimeout(()=>{
+    const d=get(id);d.stale=false;rechecking[id]=false;
+    d.fix.recheck='已结合最新 main(含已合入的相关修改)与缓存结论重新评估:原方案调整为复用已有的校验函数,冲突已消除。';
+    d.fix.conflicts=[];d.fix.commit=Math.random().toString(16).slice(2,9);
+    notify('复核完成',`${id} 的方案已基于最新代码更新`,'ok',id);refresh();fillDrawer();
+  },1800);
+}
+function simNew(){
+  const t=NEWPOOL[newN++%NEWPOOL.length];
+  const d={...t,id:(t.type==='建议'?'SUG-':'BUG-')+(2490+newN),who:'飞书同学',time:'刚刚',state:'queued',desc:'(模拟的新缺陷)'+t.title+'。'};
+  D.unshift(d);
+  notify('收到新缺陷 · 尚未加入清单',`${d.id} · ${d.pri} · ${d.title}`,'warn',d.id);
+  if(view==='onboard')view='work';
+  render();
+}
+
+/* ========== 弹窗:接受 / 拒绝 / 跳过 ========== */
+function modal(html){$('#modal').innerHTML=`<div class="mask" onclick="closeModal()"><div class="modal" onclick="event.stopPropagation()">${html}</div></div>`}
+function closeModal(){$('#modal').innerHTML=''}
+function finish(d){closeModal();tick();fillDrawer()}
+let keep=true;
+function openReject(id){
+  keep=true;
+  modal(`<h3>拒绝 ${id} 的修复方案</h3><div class="sub">被拒绝的方案仍可能有价值,你可以选择是否保留。</div>
+   <div id="rc"></div>
+   <label class="mut" style="font-size:12.5px;display:block;margin:6px 0">拒绝原因(可选)</label><textarea class="ta" id="rr" placeholder="例如:思路对,但改动范围偏大"></textarea>
+   <footer><button class="btn" onclick="closeModal()">取消</button><button class="btn danger" onclick="doReject('${id}')">确认拒绝</button></footer>`);
+  rcRender();
+}
+function rcRender(){
+  $('#rc').innerHTML=`<button class="rc ${keep?'on':''}" onclick="keep=true;rcRender()"><div class="rd"></div><div><b>保留 AI 的修改</b><span>用 <span class="mono">git cherry-pick -n</span> 放入 main 工作区(不提交),方便你在此基础上继续改</span></div></button>
+   <button class="rc ${keep?'':'on'}" onclick="keep=false;rcRender()"><div class="rd"></div><div><b>丢弃修改</b><span>仅删除临时分支,不改动 main</span></div></button>`;
+}
+function doReject(id){const d=get(id);d.state='rejected';d.kept=keep;d.reason=$('#rr').value.trim();notify(`已拒绝 ${id}`,keep?'AI 修改已保留到工作区':'AI 修改已丢弃','skip');finish(d)}
+const PASSR=['需求不明确','无法复现','不是代码问题','稍后处理'];
+function openPass(id){
+  modal(`<h3>跳过 ${id}</h3><div class="sub">跳过后不会修改任何代码,请简单备注原因。</div>
+   <div class="chips" style="margin-bottom:10px">${PASSR.map(r=>`<button class="cp" onclick="$('#pr').value='${r}';$('#pb').disabled=false">${r}</button>`).join('')}</div>
+   <textarea class="ta" id="pr" placeholder="跳过原因(必填)" oninput="$('#pb').disabled=!this.value.trim()"></textarea>
+   <footer><button class="btn" onclick="closeModal()">取消</button><button class="btn primary" id="pb" disabled onclick="doPass('${id}')">确认跳过</button></footer>`);
+}
+function doPass(id){const d=get(id);d.state='passed';d.auto=false;d.reason=$('#pr').value.trim();notify(`已跳过 ${id}`,d.reason,'skip');finish(d)}
+const ASTEPS=d=>['切换到主分支 <code>main</code>',`cherry-pick <code>${d.fix.branch}</code> 上的提交`,'删除本地临时分支','push 到 <code>origin/main</code>','调用 Jenkins 打 OTA 包','在飞书将缺陷标记为「已解决」','在飞书评论中备注版本号 <code>#{ota_version}</code>'];
+function openAccept(id){
+  const d=get(id);
+  modal(`<h3>接受 ${id} 的修复方案</h3><div class="sub">确认后将自动完成以下步骤,无需手动操作。</div>
+   <ul class="ostep">${ASTEPS(d).map((s,i)=>`<li><span class="b">${i+1}</span><span>${s}</span></li>`).join('')}</ul>
+   <div class="note">评论格式:<span class="mono">#{ota_version}</span>,例如 <span class="mono">#3.8.0.2417</span></div>
+   <footer><button class="btn" onclick="closeModal()">取消</button><button class="btn good" onclick="runAccept('${id}')">${ic('check',15)}确认接受</button></footer>`);
+}
+function runAccept(id){
+  const d=get(id),ota='3.8.0.'+(2400+Math.floor(Math.random()*90)),S2=ASTEPS(d);
+  S2[4]='Jenkins 打 OTA 包(预计约 1 分钟)';
+  const paint=n=>{
+    const box=$('#modal .modal');if(!box)return;
+    box.innerHTML=`<h3>${n>=7?'已接受并发布':'正在处理 '+id}</h3><div class="sub">${n>=7?'缺陷已标记为 accepted。':'请稍候,期间可以关闭窗口,过程在后台继续。'}</div>
+     <ul class="ostep">${S2.map((s,i)=>{
+       const st=i<n?'ok':i===n?'run':'';
+       const txt=i===4&&i<n?`OTA 已完成,版本号 <code>${ota}</code>`:i===6&&i<n?`已评论 <code>#${ota}</code>`:s;
+       return `<li class="${st}"><span class="b">${i<n?ic('check',12):i===n?'<div class="spin"></div>':i+1}</span><span>${txt}</span></li>`}).join('')}</ul>
+     <footer>${n>=7?`<button class="btn primary" onclick="closeModal()">完成</button>`:`<button class="btn" onclick="closeModal()">转到后台</button>`}</footer>`;
+  };
+  let n=0;paint(0);
+  const next=()=>{
+    n++;paint(n);
+    if(n===7){d.state='accepted';mainRev++;d.ota=ota;d.commit=d.fix.commit;notify(`已接受 ${id}`,`OTA ${ota} 已打包,飞书已评论 #${ota}`,'ok',id);tick();fillDrawer()}
+    else setTimeout(next,n===4?1800:650);
+  };
+  setTimeout(next,650);
+}
+
+render();
+tick();
+</script>
+</body>
+</html>
