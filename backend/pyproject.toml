@@ -1,0 +1,53 @@
+[project]
+name = "fix-mate"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "王若冲", email = "ruochong.wang@me2zen.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "aiosqlite>=0.22.1",
+    "claude-agent-sdk>=0.2.185",
+    "fastapi>=0.165.0",
+    "langgraph>=1.2.23",
+    "langgraph-checkpoint-sqlite>=3.1.3",
+    "pydantic>=2.14.3",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[project.scripts]
+fix-mate = "fix_mate.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.12.10,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=9.2.0",
+    "pytest-asyncio>=1.5.0",
+    "ruff>=0.17.5",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+ignore = [
+    "RUF001", "RUF002", "RUF003",  # 注释和文案里用中文标点
+]
+
+[tool.ruff.lint.per-file-ignores]
+"src/fix_mate/seed.py" = ["E501"]  # 种子数据里有长文案
+"tests/*" = ["E501"]  # 测试里有长字符串
