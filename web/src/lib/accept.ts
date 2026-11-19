@@ -17,3 +17,14 @@ export function acceptStepText(branch: string, index: number, step: number, ota?
   if (index === 6 && step > 6 && ota) return ['已评论 ', { code: `#${ota}` }]
   return acceptSteps(branch)[index]
 }
+
+/** 接受流程每一步的名字,用在失败提示里,与后端 `ACCEPT_STEPS` 一致。 */
+export const ACCEPT_STEP_NAMES = [
+  '切换到主分支',
+  '把修复放进主分支',
+  '删除临时分支',
+  '推送到远端',
+  '打 OTA 包',
+  '在飞书标记为已解决',
+  '在飞书评论版本号',
+] as const

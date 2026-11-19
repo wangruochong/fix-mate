@@ -14,4 +14,4 @@ export interface AppNotification {
 export type ServerEvent =
   | { type: 'changed' }
   | { type: 'toast'; title: string; body: string; kind: NotificationKind; defectId?: string; quiet: boolean }
-  | { type: 'accept-progress'; defectId: string; step: number; ota?: string }
+  | { type: 'accept-progress'; defectId: string; step: number; ota?: string; error?: string }

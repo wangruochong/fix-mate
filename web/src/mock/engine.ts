@@ -39,6 +39,8 @@ export class Engine {
   private lastActiveId: string | null | undefined
   private lastStates = new Map<string, ListState>()
   private accepting = new Set<string>()
+  /** 缺陷暂停时 main 的版本,恢复时用来判断是否要同步最新 main(不对外暴露) */
+  private pausedAtRev = new Map<string, number>()
   private listeners = new Set<(e: ServerEvent) => void>()
   private timer: ReturnType<typeof setInterval> | undefined
   private random: () => number
@@ -266,10 +268,10 @@ export class Engine {
 
   private pause(d: Defect, cause: PauseCause, note?: string) {
     d.state = 'paused'
+    this.pausedAtRev.set(d.id, this.mainRev)
     d.pause = {
       cause,
       at: this.iso(),
-      mainRev: this.mainRev,
       note,
       confidence: (d.step ?? 0) >= 1 ? 86 + Math.floor(this.random() * 10) : undefined,
     }
@@ -437,7 +439,7 @@ export class Engine {
         const next = ds.find((d) => d.state === 'queued' || d.state === 'paused')
         if (next) {
           if (next.state === 'queued') next.step = 0
-          else if (next.pause?.cause === 'preempted' && this.mainRev > (next.pause.mainRev ?? 0)) next.rebased = true
+          else if (next.pause?.cause === 'preempted' && this.mainRev > (this.pausedAtRev.get(next.id) ?? 0)) next.rebased = true
           next.pause = undefined
           next.state = 'analyzing'
         }

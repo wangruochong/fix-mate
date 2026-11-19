@@ -18,7 +18,7 @@ export function connectEvents() {
         showToast(e)
         break
       case 'accept-progress':
-        useUi.getState().setAcceptProgress(e.defectId, { step: e.step, ota: e.ota })
+        useUi.getState().setAcceptProgress(e.defectId, { step: e.step, ota: e.ota, error: e.error })
         break
     }
   }

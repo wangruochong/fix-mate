@@ -2,7 +2,6 @@ import { useEffect } from 'react'
 import { useAppData } from '@/api/queries'
 import { Spinner } from '@/components/common/feedback'
 import { Toaster } from '@/components/ui/sonner'
-import { USE_MOCK } from '@/config'
 import { AcceptDialog } from '@/dialogs/accept-dialog'
 import { DeleteListDialog } from '@/dialogs/delete-list-dialog'
 import { PassDialog } from '@/dialogs/pass-dialog'
@@ -76,7 +75,7 @@ export default function App() {
       <UrgentDialog />
       <DeleteListDialog />
       <Toaster />
-      {USE_MOCK && <DebugPanel />}
+      {import.meta.env.DEV && <DebugPanel />}
     </div>
   )
 }

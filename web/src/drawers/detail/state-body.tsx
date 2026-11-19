@@ -1,10 +1,11 @@
-import { Check, Clock, Flame, Pause, RefreshCw, SkipForward, X } from 'lucide-react'
+import { AlertTriangle, Check, Clock, Flame, Pause, RefreshCw, SkipForward, X } from 'lucide-react'
 import { actions } from '@/api/actions'
 import { Card, CardTitle, Mono, Note, Spinner } from '@/components/common/feedback'
 import { Rich } from '@/components/common/rich'
 import { Stepper } from '@/components/common/stepper'
 import { Tag } from '@/components/common/tag'
 import { Button } from '@/components/ui/button'
+import { ACCEPT_STEP_NAMES } from '@/lib/accept'
 import { isQueuedLive, STEPS } from '@/lib/defect'
 import { partialResult, queuedInfo } from '@/lib/detail'
 import { clock } from '@/lib/format'
@@ -21,6 +22,15 @@ export function StateBody({ defect, lists, defectMap }: { defect: Defect; lists:
     case 'review':
       return (
         <>
+          {defect.acceptError && (
+            <Card tone="warn">
+              <CardTitle icon={AlertTriangle}>
+                接受卡在了第 {defect.acceptError.step + 1} 步「{ACCEPT_STEP_NAMES[defect.acceptError.step]}」
+              </CardTitle>
+              <p className="opacity-90">{defect.acceptError.message}</p>
+              <Note>前面已完成的步骤不会重做。点「重试接受」会从这一步继续。</Note>
+            </Card>
+          )}
           {defect.needsRecheck && <RecheckCard defect={defect} />}
           {defect.fix && <FixCards fix={defect.fix} />}
         </>

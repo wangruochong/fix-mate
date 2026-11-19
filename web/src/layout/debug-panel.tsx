@@ -1,7 +1,7 @@
 import { actions } from '@/api/actions'
 import { useUi } from '@/store/ui'
 
-/** 开发调试面板,只在使用假接口时显示,正式版不会出现。 */
+/** 开发调试面板,只在开发模式显示(假接口和开发模式的后端都提供 /api/dev/*),正式版不会出现。 */
 export function DebugPanel() {
   const go = useUi((s) => s.go)
   const btn = 'h-7 rounded-md px-3 text-[12.5px] text-[#c9ced8] hover:bg-white/10 hover:text-white'

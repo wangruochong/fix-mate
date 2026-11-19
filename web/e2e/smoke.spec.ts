@@ -1,6 +1,9 @@
 import { expect, test, type Page } from '@playwright/test'
 
-/** 每个用例开始时都重置假数据,并收集控制台报错。 */
+/**
+ * 每个用例开始时都把数据重置成演示数据,并收集控制台报错。
+ * 先重置再重新加载页面:连真实后端时状态是跨用例共享的,上一个用例的结果不能影响下一个用例的初始页面。
+ */
 let errors: string[]
 
 test.beforeEach(async ({ page }) => {
@@ -8,9 +11,11 @@ test.beforeEach(async ({ page }) => {
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()))
   page.on('pageerror', (e) => errors.push(String(e)))
   await page.goto('/')
+  await page.getByRole('button', { name: '重置数据' }).waitFor() // 调试面板出现,说明应用(和假接口)已启动完成
+  // 直接发请求并等它返回:真实后端清理分支和检查点需要时间,必须等重置真正完成再加载页面
+  await page.evaluate(() => fetch('/api/dev/reset', { method: 'POST' }))
+  await page.reload()
   await page.getByText('本周迭代').first().waitFor()
-  await page.getByRole('button', { name: '重置数据' }).click()
-  await page.waitForTimeout(300)
 })
 
 test.afterEach(() => {
@@ -55,12 +60,18 @@ test('AI 会自己推进:处理中的缺陷走完后进入待审核', async ({ p
 })
 
 test('接受流程:7 步完成后缺陷变为已接受', async ({ page }) => {
-  await row(page, '登录页点击「忘记密码」无响应').click()
+  // 接受 AI 刚修好的缺陷(演示数据里的待审核缺陷带的是编造的提交号,真实引擎无法接受它们)
+  const target = row(page, '弱网下订单提交可能重复扣款')
+  await expect(target).toContainText('待审核', { timeout: 20_000 })
+  await target.click()
+  // 同清单里还有别的待审核方案,所以它需要先复核
+  await page.getByRole('button', { name: '立即复核' }).click()
+  await expect(page.getByText('复核结果')).toBeVisible({ timeout: 10_000 })
   await page.getByRole('button', { name: '接受并发布' }).click()
   await page.getByRole('button', { name: '确认接受' }).click()
-  await expect(page.getByRole('heading', { name: '已接受并发布' })).toBeVisible({ timeout: 15_000 })
+  await expect(page.getByRole('heading', { name: '已接受并发布' })).toBeVisible({ timeout: 20_000 })
   await page.getByRole('button', { name: '完成' }).click()
-  await expect(page.getByText(/commit e4b7a90/)).toBeVisible()
+  await expect(page.getByText(/^OTA 3\.8\.0\.\d+$/)).toBeVisible() // 详情里的 OTA 标签(弹出提示里的文字更长,不会匹配)
 })
 
 test('待复核的缺陷必须先复核才能接受', async ({ page }) => {
@@ -85,7 +96,7 @@ test('紧急插队:打断当前缺陷,顶部出现紧急提示条', async ({ pag
   await page.getByPlaceholder(/关键词/).fill('夜间模式')
   await page.keyboard.press('Enter')
   await page.getByRole('button', { name: '立即处理', exact: true }).click()
-  await expect(page.getByText('紧急处理中')).toBeVisible()
+  await expect(page.getByRole('button', { name: /紧急处理中 BUG-/ })).toBeVisible() // 顶部提示条(右上角的弹出提示文字相同)
   await expect(page.getByText('其它清单已暂时让位')).toBeVisible()
   await nav(page, '缺陷').click()
   await expect(row(page, '弱网下订单提交可能重复扣款')).toContainText('紧急插队,已暂停')

@@ -13,8 +13,11 @@ export type DialogState =
   | null
 
 export interface AcceptProgress {
+  /** 已完成的步骤数;失败时是失败的那一步(从 0 开始) */
   step: number
   ota?: string
+  /** 流程在 step 这一步失败,值是原因 */
+  error?: string
 }
 
 /** 纯界面状态。业务数据都来自接口,不放在这里。 */

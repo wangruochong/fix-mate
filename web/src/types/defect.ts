@@ -68,14 +68,19 @@ export interface PauseInfo {
   note?: string
   /** 暂停前 AI 判断出的置信度(已完成判断时才有) */
   confidence?: number
-  /** 被打断时的 main 版本,恢复时用来判断是否要同步 */
-  mainRev?: number
 }
 
 export type Outcome =
   | { kind: 'accepted'; ota: string; commit: string }
   | { kind: 'rejected'; keepChanges: boolean; reason?: string }
   | { kind: 'passed'; auto: boolean; reason: string }
+
+/** 接受流程卡在了哪一步。缺陷仍是待审核,用户再点接受会从这一步继续,已完成的步骤不会重做。 */
+export interface AcceptError {
+  /** 失败的步骤,从 0 开始(共 7 步) */
+  step: number
+  message: string
+}
 
 export interface Defect {
   id: string
@@ -99,6 +104,8 @@ export interface Defect {
   /** 待审核时,是否需要复核 */
   needsRecheck?: boolean
   cached?: CachedConclusion
+  /** 待审核时,上一次接受失败的原因 */
+  acceptError?: AcceptError
   /** accepted / rejected / passed 时的处理结果 */
   outcome?: Outcome
 }

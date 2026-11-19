@@ -18,6 +18,12 @@ function Bar({ hint, children }: { hint: React.ReactNode; children?: React.React
   )
 }
 
+function reviewHint(defect: Defect) {
+  if (defect.needsRecheck) return '请先完成复核,再接受该方案'
+  if (defect.acceptError) return '上次接受没有完成,重试会从失败的那一步继续,已完成的步骤不会重做'
+  return '接受后将 cherry-pick 到 main、push 并通过 Jenkins 打 OTA'
+}
+
 /** 底部固定操作栏,随缺陷状态变化。没有可做的操作时返回空。 */
 export function ActionBar({ defect, lists, defectMap }: { defect: Defect; lists: DefectList[]; defectMap: Map<string, Defect> }) {
   const openDialog = useUi((s) => s.openDialog)
@@ -25,7 +31,7 @@ export function ActionBar({ defect, lists, defectMap }: { defect: Defect; lists:
   const viewListId = useUi((s) => s.viewListId)
   const accepting = useUi((s) => {
     const p = s.acceptProgress[defect.id]
-    return !!p && p.step < 7
+    return !!p && p.step < 7 && !p.error
   })
   const id = defect.id
 
@@ -47,7 +53,7 @@ export function ActionBar({ defect, lists, defectMap }: { defect: Defect; lists:
     case 'review': {
       const blocked = !!defect.needsRecheck || !!defect.rechecking || accepting
       return (
-        <Bar hint={defect.needsRecheck ? '请先完成复核,再接受该方案' : '接受后将 cherry-pick 到 main、push 并通过 Jenkins 打 OTA'}>
+        <Bar hint={reviewHint(defect)}>
           <Button variant="outline" onClick={() => openDialog({ kind: 'pass', defectId: id })}>
             <SkipForward />
             跳过
@@ -58,7 +64,7 @@ export function ActionBar({ defect, lists, defectMap }: { defect: Defect; lists:
           </Button>
           <Button variant="good" size="lg" disabled={blocked} onClick={() => openDialog({ kind: 'accept', defectId: id })}>
             <Check />
-            接受并发布
+            {defect.acceptError ? '重试接受' : '接受并发布'}
           </Button>
         </Bar>
       )
